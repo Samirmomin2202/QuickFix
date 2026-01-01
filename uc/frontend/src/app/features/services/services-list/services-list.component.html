@@ -1,21 +1,39 @@
 <div class="services-page">
   <!-- Hero Section -->
   <section class="hero">
+    <div class="decorative-circles">
+      <div class="circle circle-1"></div>
+      <div class="circle circle-2"></div>
+      <div class="circle circle-3"></div>
+    </div>
     <div class="container">
-      <h1>Our Services</h1>
-      <p>Find the perfect service for your needs</p>
+      <div class="hero-badge">
+        <mat-icon>home_repair_service</mat-icon>
+        <span>Professional Services</span>
+      </div>
+      <h1>Discover Our Services</h1>
+      <p>Find trusted professionals for all your home service needs</p>
       
       <div class="search-box">
         <mat-form-field appearance="outline">
           <mat-icon matPrefix>search</mat-icon>
           <input matInput 
-                 placeholder="Search for services" 
+                 placeholder="Search for services..." 
                  [(ngModel)]="searchTerm"
                  (keyup.enter)="onSearch()">
         </mat-form-field>
         <button mat-raised-button color="primary" (click)="onSearch()">
+          <mat-icon>search</mat-icon>
           Search
         </button>
+      </div>
+
+      <div class="quick-links">
+        <span class="popular-label">Popular:</span>
+        <button mat-button class="quick-link">Plumbing</button>
+        <button mat-button class="quick-link">Cleaning</button>
+        <button mat-button class="quick-link">Electrician</button>
+        <button mat-button class="quick-link">Carpentry</button>
       </div>
     </div>
   </section>
@@ -23,16 +41,22 @@
   <!-- Categories Filter -->
   <section class="categories-filter">
     <div class="container">
+      <div class="filter-header">
+        <h3>Browse by Category</h3>
+      </div>
       <div class="category-chips">
         <button mat-chip-option 
                 [selected]="selectedCategory === 'all'"
-                (click)="filterByCategory('all')">
+                (click)="filterByCategory('all')"
+                class="category-chip">
+          <mat-icon>apps</mat-icon>
           All Services
         </button>
         <button mat-chip-option 
                 *ngFor="let category of categories"
                 [selected]="selectedCategory === category._id"
-                (click)="filterByCategory(category._id)">
+                (click)="filterByCategory(category._id)"
+                class="category-chip">
           {{ category.name }}
         </button>
       </div>
@@ -42,6 +66,11 @@
   <!-- Services Grid -->
   <section class="services-section">
     <div class="container">
+      <div class="section-info" *ngIf="!loading && services.length > 0">
+        <h2>Available Services</h2>
+        <p>{{ services.length }} service{{ services.length !== 1 ? 's' : '' }} found</p>
+      </div>
+
       <div class="services-grid" *ngIf="!loading && services.length > 0">
         <mat-card class="service-card" *ngFor="let service of services" (click)="navigateToService(service._id)">
           <div class="service-image">
@@ -49,31 +78,42 @@
                  [alt]="service.name"
                  (error)="onImageError($event)"
                  loading="lazy">
+            <div class="image-overlay"></div>
             <div class="service-badge" *ngIf="service.discountPrice">
+              <mat-icon>local_offer</mat-icon>
               {{ ((service.price - service.discountPrice) / service.price * 100).toFixed(0) }}% OFF
             </div>
           </div>
           <mat-card-content>
-            <h3>{{ service.name }}</h3>
+            <div class="service-header">
+              <h3>{{ service.name }}</h3>
+              <div class="service-rating">
+                <mat-icon>star</mat-icon>
+                <span>{{ service.rating }}</span>
+              </div>
+            </div>
             <p class="service-description">{{ service.description }}</p>
-            <div class="service-rating">
-              <mat-icon>star</mat-icon>
-              <span>{{ service.rating }} ({{ service.reviewCount }} reviews)</span>
+            <div class="service-meta">
+              <div class="meta-item">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ service.duration }} mins</span>
+              </div>
+              <div class="meta-item">
+                <mat-icon>rate_review</mat-icon>
+                <span>{{ service.reviewCount }} reviews</span>
+              </div>
             </div>
             <div class="service-price">
-              <span class="current-price">₹{{ service.discountPrice || service.price }}</span>
-              <span class="original-price" *ngIf="service.discountPrice">₹{{ service.price }}</span>
+              <div class="price-info">
+                <span class="current-price">₹{{ service.discountPrice || service.price }}</span>
+                <span class="original-price" *ngIf="service.discountPrice">₹{{ service.price }}</span>
+              </div>
+              <button mat-raised-button color="primary" (click)="navigateToService(service._id); $event.stopPropagation()">
+                <mat-icon>event_available</mat-icon>
+                Book Now
+              </button>
             </div>
-            <p class="service-duration">
-              <mat-icon>schedule</mat-icon>
-              {{ service.duration }} mins
-            </p>
           </mat-card-content>
-          <mat-card-actions>
-            <button mat-raised-button color="primary" (click)="navigateToService(service._id); $event.stopPropagation()">
-              Book Now
-            </button>
-          </mat-card-actions>
         </mat-card>
       </div>
 
@@ -82,9 +122,15 @@
       </div>
 
       <div class="no-results" *ngIf="!loading && services.length === 0">
-        <mat-icon>search_off</mat-icon>
-        <h3>No services found</h3>
-        <p>Try adjusting your search or filter criteria</p>
+        <div class="no-results-icon">
+          <mat-icon>search_off</mat-icon>
+        </div>
+        <h3>No Services Found</h3>
+        <p>We couldn't find any services matching your criteria</p>
+        <button mat-raised-button color="primary" (click)="filterByCategory('all')">
+          <mat-icon>refresh</mat-icon>
+          View All Services
+        </button>
       </div>
     </div>
   </section>

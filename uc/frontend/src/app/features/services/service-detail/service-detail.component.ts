@@ -7,6 +7,7 @@ import { AuthService } from '@core/services/auth.service';
 import { Service } from '@core/models';
 
 @Component({
+  standalone: false,
   selector: 'app-service-detail',
   templateUrl: './service-detail.component.html',
   styleUrls: ['./service-detail.component.scss']

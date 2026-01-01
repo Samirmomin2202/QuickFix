@@ -3,6 +3,7 @@ import { CategoryService } from '@core/services/category.service';
 import { Category } from '@core/models';
 
 @Component({
+  standalone: false,
   selector: 'app-manage-categories',
   templateUrl: './manage-categories.component.html',
   styleUrls: ['./manage-categories.component.scss']

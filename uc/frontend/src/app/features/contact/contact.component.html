@@ -1,20 +1,53 @@
 <div class="contact-page">
   <!-- Hero Section -->
   <section class="hero-section">
+    <div class="decorative-circles">
+      <div class="circle circle-1"></div>
+      <div class="circle circle-2"></div>
+      <div class="circle circle-3"></div>
+    </div>
     <div class="container">
-      <h1>Contact Us</h1>
-      <p class="subtitle">We'd love to hear from you. Get in touch with us!</p>
+      <div class="hero-content">
+        <div class="hero-badge">
+          <mat-icon>headset_mic</mat-icon>
+          <span>24/7 Support Available</span>
+        </div>
+        <h1>Get in Touch with Us</h1>
+        <p class="subtitle">Have a question or need assistance? We're here to help you every step of the way.</p>
+        <div class="hero-features">
+          <div class="feature-item">
+            <mat-icon>schedule</mat-icon>
+            <span>Quick Response</span>
+          </div>
+          <div class="feature-item">
+            <mat-icon>verified</mat-icon>
+            <span>Expert Support</span>
+          </div>
+          <div class="feature-item">
+            <mat-icon>chat</mat-icon>
+            <span>Friendly Team</span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- Contact Info Section -->
   <section class="contact-info-section">
     <div class="container">
+      <div class="section-header">
+        <h2>How Can We Help You?</h2>
+        <p>Choose the best way to reach out to us</p>
+      </div>
       <div class="info-grid">
         <mat-card *ngFor="let info of contactInfo" class="info-card">
-          <mat-icon color="primary">{{info.icon}}</mat-icon>
+          <div class="icon-wrapper">
+            <mat-icon color="primary">{{info.icon}}</mat-icon>
+          </div>
           <h3>{{info.title}}</h3>
-          <p *ngFor="let detail of info.details">{{detail}}</p>
+          <div class="info-details">
+            <p *ngFor="let detail of info.details">{{detail}}</p>
+          </div>
         </mat-card>
       </div>
     </div>
@@ -23,16 +56,59 @@
   <!-- Contact Form Section -->
   <section class="form-section">
     <div class="container">
-      <div class="form-container">
-        <div class="form-header">
-          <h2>Send Us a Message</h2>
-          <p>Fill out the form below and we'll get back to you as soon as possible</p>
-        </div>
+      <div class="form-layout">
+        <div class="form-sidebar">
+          <div class="sidebar-content">
+            <h2>Let's Start a Conversation</h2>
+            <p>Our team is ready to answer your questions and provide the support you need.</p>
+            
+            <div class="response-time">
+              <mat-icon>access_time</mat-icon>
+              <div>
+                <h4>Average Response Time</h4>
+                <p>We typically respond within 2-4 hours during business hours</p>
+              </div>
+            </div>
 
-        <div *ngIf="submitSuccess" class="success-message">
-          <mat-icon>check_circle</mat-icon>
-          <p>Thank you for contacting us! We'll get back to you soon.</p>
+            <div class="contact-channels">
+              <h4>Other Ways to Connect</h4>
+              <div class="channel-item">
+                <mat-icon>chat_bubble</mat-icon>
+                <div>
+                  <strong>Live Chat</strong>
+                  <p>Available Mon-Sun: 8 AM - 10 PM</p>
+                </div>
+              </div>
+              <div class="channel-item">
+                <mat-icon>phone_in_talk</mat-icon>
+                <div>
+                  <strong>Phone Support</strong>
+                  <p>+91 1800-123-4567</p>
+                </div>
+              </div>
+              <div class="channel-item">
+                <mat-icon>email</mat-icon>
+                <div>
+                  <strong>Email Us</strong>
+                  <p>support&#64;quickfix.com</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+        <div class="form-container">
+          <div class="form-header">
+            <h2>Send Us a Message</h2>
+            <p>Fill out the form below and we'll get back to you as soon as possible</p>
+          </div>
+
+          <div *ngIf="submitSuccess" class="success-message">
+            <mat-icon>check_circle</mat-icon>
+            <div>
+              <strong>Message Sent Successfully!</strong>
+              <p>Thank you for contacting us. We'll get back to you soon.</p>
+            </div>
+          </div>
 
         <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
           <div class="form-row">
@@ -104,6 +180,7 @@
             Send Message
           </button>
         </form>
+        </div>
       </div>
     </div>
   </section>
@@ -129,10 +206,35 @@
   <section class="map-section">
     <div class="container">
       <h2>Find Us Here</h2>
-      <div class="map-placeholder">
-        <mat-icon>location_on</mat-icon>
-        <p>123 Service Street, Tech Park, Bangalore - 560001</p>
-        <small>Interactive map integration available</small>
+      <div class="map-container">
+        <iframe 
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14690.735714814396!2d72.49304699999999!3d22.991851899999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e9b38b3e0b4f5%3A0x4e825c89d6c4e8a3!2sL.%20J.%20Institute%20of%20Computer%20Applications!5e0!3m2!1sen!2sin!4v1735718400000!5m2!1sen!2sin"
+          width="100%" 
+          height="450" 
+          style="border:0;" 
+          allowfullscreen="" 
+          loading="lazy" 
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+      <div class="location-details">
+        <div class="location-item">
+          <mat-icon>location_on</mat-icon>
+          <div>
+            <h4>L J University of Computer Application</h4>
+            <p>Sarkhej Road, Ahmedabad - 380054, Gujarat, India</p>
+          </div>
+        </div>
+        <div class="location-actions">
+          <a href="https://maps.app.goo.gl/syb9hpDoVTK8zesnG" target="_blank" mat-raised-button color="primary">
+            <mat-icon>directions</mat-icon>
+            Get Directions
+          </a>
+          <a href="https://www.google.com/maps/search/?api=1&query=22.991852,72.493047" target="_blank" mat-stroked-button>
+            <mat-icon>open_in_new</mat-icon>
+            Open in Maps
+          </a>
+        </div>
       </div>
     </div>
   </section>

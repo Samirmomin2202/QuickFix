@@ -3,6 +3,7 @@ import { BookingService } from '@core/services/booking.service';
 import { ServiceService } from '@core/services/service.service';
 
 @Component({
+  standalone: false,
   selector: 'app-view-reports',
   templateUrl: './view-reports.component.html',
   styleUrls: ['./view-reports.component.scss']

@@ -6,6 +6,7 @@ import { User } from '@core/models';
 import { filter } from 'rxjs/operators';
 
 @Component({
+  standalone: false,
   selector: 'app-sidebar',
   template: `
     <ng-container *ngIf="shouldShowSidebar && (currentUser$ | async) as user">

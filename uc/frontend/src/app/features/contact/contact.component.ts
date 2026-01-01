@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
+  standalone: false,
   selector: 'app-contact',
   templateUrl: './contact.component.html',
   styleUrls: ['./contact.component.scss']
@@ -15,7 +16,7 @@ export class ContactComponent {
     {
       icon: 'location_on',
       title: 'Visit Us',
-      details: ['123 Service Street', 'Tech Park, Bangalore - 560001', 'Karnataka, India']
+      details: ['L J University of Computer Application', 'Sarkhej Road', 'Ahmedabad - 380054', 'Gujarat, India']
     },
     {
       icon: 'phone',

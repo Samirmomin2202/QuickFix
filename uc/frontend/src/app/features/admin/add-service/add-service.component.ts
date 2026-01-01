@@ -6,6 +6,7 @@ import { CategoryService } from '@core/services/category.service';
 import { Category } from '@core/models';
 
 @Component({
+  standalone: false,
   selector: 'app-add-service',
   templateUrl: './add-service.component.html',
   styleUrls: ['./add-service.component.scss']

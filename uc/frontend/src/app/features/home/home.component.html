@@ -1,125 +1,191 @@
 <div class="home">
-  <!-- Hero Section -->
-  <section class="hero">
+  <!-- Hero Banner Section -->
+  <section class="hero-banner">
     <div class="container">
       <div class="hero-content">
-        <div class="hero-brand">
-          <img src="assets/images/quickfix-logo.jpg" alt="QuickFix Logo" class="brand-logo-large">
-          <h1>Home services at your doorstep</h1>
-        </div>
-        <p>What are you looking for?</p>
-        
-        <div class="search-box">
-          <mat-form-field appearance="outline">
-            <mat-icon matPrefix>search</mat-icon>
-            <input matInput placeholder="Search for services" (keyup.enter)="router.navigate(['/services'])">
-          </mat-form-field>
+        <h1>Book reliable professionals<br>for your home</h1>
+        <div class="search-container">
+          <mat-icon>location_on</mat-icon>
+          <input type="text" placeholder="Ahmedabad" class="location-input">
+          <div class="search-divider"></div>
+          <mat-icon>search</mat-icon>
+          <input type="text" placeholder="What service do you need?" class="search-input" (keyup.enter)="router.navigate(['/services'])">
           <button mat-raised-button color="primary" routerLink="/services">
-            Search
+            <mat-icon>search</mat-icon>
           </button>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- Categories Section -->
-  <section class="section categories-section">
-    <div class="container">
-      <div class="section-title">
-        <h2>Browse by Category</h2>
-        <p>Explore our wide range of services</p>
-      </div>
-
-      <div class="grid grid-3" *ngIf="!loading">
-        <mat-card class="category-card" *ngFor="let category of categories" (click)="navigateToCategory(category._id)">
-          <mat-card-content>
-            <div class="category-icon">
-              <img [src]="category.icon" 
-                   [alt]="category.name"
-                   (error)="onImageError($event)"
-                   loading="lazy">
-            </div>
-            <h3>{{ category.name }}</h3>
-            <p>{{ category.description }}</p>
-          </mat-card-content>
-        </mat-card>
-      </div>
-
-      <div class="loading-container" *ngIf="loading">
-        <mat-spinner></mat-spinner>
+      <div class="hero-illustration">
+        <div class="circle-background"></div>
+        <div class="decorative-dots dot-1"></div>
+        <div class="decorative-dots dot-2"></div>
+        <div class="decorative-dots dot-3"></div>
+        <img src="https://cdni.iconscout.com/illustration/premium/thumb/professional-service-worker-3d-illustration-download-in-png-blend-fbx-gltf-file-formats--business-man-mechanic-technician-pack-people-illustrations-4404597.png" 
+             alt="Professional Service Provider" 
+             class="hero-3d-character"
+             (error)="on3DImageError($event)">
       </div>
     </div>
   </section>
 
-  <!-- Featured Services Section -->
-  <section class="section featured-section">
+  <!-- Quick Categories -->
+  <section class="quick-categories">
     <div class="container">
-      <div class="section-title">
-        <h2>Most Popular Services</h2>
-        <p>Book the best services near you</p>
-      </div>
-
-      <div class="grid grid-3" *ngIf="!loading">
-        <mat-card class="service-card" *ngFor="let service of featuredServices" (click)="navigateToService(service._id)">
-          <div class="service-image">
-            <img [src]="service.image" 
-                 [alt]="service.name"
-                 (error)="onImageError($event)"
-                 loading="lazy">
-            <div class="service-badge" *ngIf="service.discountPrice">
-              {{ ((service.price - service.discountPrice) / service.price * 100).toFixed(0) }}% OFF
-            </div>
+      <div class="category-grid">
+        <div class="category-item" *ngFor="let cat of quickCategories" (click)="navigateToCategory(cat.id)">
+          <div class="category-icon-wrapper">
+            <mat-icon [style.color]="cat.color">{{ cat.icon }}</mat-icon>
           </div>
-          <mat-card-content>
-            <h3>{{ service.name }}</h3>
-            <div class="service-rating">
-              <mat-icon>star</mat-icon>
-              <span>{{ service.rating }} ({{ service.reviewCount }})</span>
-            </div>
-            <div class="service-price">
-              <span class="current-price">₹{{ service.discountPrice || service.price }}</span>
-              <span class="original-price" *ngIf="service.discountPrice">₹{{ service.price }}</span>
-            </div>
-            <p class="service-duration">
-              <mat-icon>schedule</mat-icon>
-              {{ service.duration }} mins
-            </p>
-          </mat-card-content>
-          <mat-card-actions>
-            <button mat-raised-button color="primary" (click)="navigateToService(service._id); $event.stopPropagation()">
-              Book Now
-            </button>
-          </mat-card-actions>
-        </mat-card>
+          <span>{{ cat.name }}</span>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Why Choose Us Section -->
-  <section class="section features-section">
+  <!-- Featured Service Cards -->
+  <section class="featured-cards-section">
     <div class="container">
-      <div class="section-title">
-        <h2>Why Choose QuickFix?</h2>
-        <p>We provide the best service experience</p>
+      <div class="featured-grid">
+        <div class="featured-card" *ngFor="let featured of featuredCards" [style.background-color]="featured.bgColor">
+          <div class="featured-content">
+            <h3>{{ featured.title }}</h3>
+            <p>{{ featured.description }}</p>
+            <button mat-raised-button class="learn-more-btn">Learn More</button>
+          </div>
+          <div class="featured-image">
+            <img [src]="featured.image" [alt]="featured.title" (error)="onImageError($event)">
+          </div>
+        </div>
       </div>
+    </div>
+  </section>
 
-      <div class="grid grid-3">
-        <div class="feature-item">
-          <mat-icon color="primary">verified</mat-icon>
-          <h3>Verified Professionals</h3>
-          <p>All service providers are background verified</p>
-        </div>
-        <div class="feature-item">
-          <mat-icon color="primary">schedule</mat-icon>
-          <h3>On-Time Service</h3>
-          <p>Guaranteed timely service or your money back</p>
-        </div>
-        <div class="feature-item">
-          <mat-icon color="primary">price_check</mat-icon>
-          <h3>Transparent Pricing</h3>
-          <p>No hidden charges, pay only for what you see</p>
+  <!-- Most Booked Services -->
+  <section class="section most-booked-section">
+    <div class="container">
+      <h2 class="section-heading">Most Booked Services</h2>
+      <div class="services-scroll">
+        <div class="service-scroll-item" *ngFor="let service of mostBookedServices">
+          <div class="service-img-wrapper" (click)="navigateToService(service._id)">
+            <img [src]="service.image" [alt]="service.name" (error)="onImageError($event)">
+          </div>
+          <p class="service-name">{{ service.name }}</p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- Salon Services -->
+  <section class="section salon-services-section">
+    <div class="container">
+      <h2 class="section-heading">Salon Services</h2>
+      <div class="services-scroll">
+        <div class="service-scroll-item" *ngFor="let service of salonServices">
+          <div class="service-img-wrapper" (click)="navigateToService(service._id)">
+            <img [src]="service.image" [alt]="service.name" (error)="onImageError($event)">
+          </div>
+          <p class="service-name">{{ service.name }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Salon Banner -->
+  <section class="salon-banner">
+    <div class="container">
+      <div class="banner-content">
+        <div class="banner-text">
+          <h2>Get Professional Salon<br>Services at Home</h2>
+          <button mat-raised-button color="accent" class="book-now-btn">Book Now</button>
+        </div>
+        <div class="banner-image">
+          <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&h=280&fit=crop" alt="Salon Services" (error)="onImageError($event)">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cleaning & Pest Services -->
+  <section class="section cleaning-services-section">
+    <div class="container">
+      <h2 class="section-heading">Cleaning & Pest Services</h2>
+      <div class="services-scroll">
+        <div class="service-scroll-item" *ngFor="let service of cleaningServices">
+          <div class="service-img-wrapper" (click)="navigateToService(service._id)">
+            <img [src]="service.image" [alt]="service.name" (error)="onImageError($event)">
+          </div>
+          <p class="service-name">{{ service.name }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Appliances & Repair -->
+  <section class="section appliances-section">
+    <div class="container">
+      <h2 class="section-heading">Appliances & Repair</h2>
+      <div class="services-scroll">
+        <div class="service-scroll-item" *ngFor="let service of applianceServices">
+          <div class="service-img-wrapper" (click)="navigateToService(service._id)">
+            <img [src]="service.image" [alt]="service.name" (error)="onImageError($event)">
+          </div>
+          <p class="service-name">{{ service.name }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wall Makeovers Banner -->
+  <section class="wall-banner">
+    <div class="container">
+      <div class="wall-banner-content">
+        <h2>Wall Makeovers</h2>
+        <p>Transform your living spaces</p>
+        <button mat-raised-button class="book-now-btn">Book Now</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Renovation & Fabrication -->
+  <section class="section renovation-section">
+    <div class="container">
+      <h2 class="section-heading">Renovation & Fabrication</h2>
+      <div class="services-scroll">
+        <div class="service-scroll-item" *ngFor="let service of renovationServices">
+          <div class="service-img-wrapper" (click)="navigateToService(service._id)">
+            <img [src]="service.image" [alt]="service.name" (error)="onImageError($event)">
+          </div>
+          <p class="service-name">{{ service.name }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trending Stories -->
+  <section class="section trending-stories">
+    <div class="container">
+      <h2 class="section-heading">Trending Stories</h2>
+      <div class="stories-grid">
+        <div class="story-card" *ngFor="let story of trendingStories">
+          <div class="story-image">
+            <img [src]="story.image" [alt]="story.title" (error)="onImageError($event)">
+          </div>
+          <div class="story-content">
+            <h3>{{ story.title }}</h3>
+            <p>{{ story.excerpt }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Professional CTA -->
+  <section class="professional-cta">
+    <div class="container">
+      <mat-icon>business_center</mat-icon>
+      <h2>Are you a skilled professional?</h2>
+      <p>Register as a professional, showcase your expertise, engage with homeowners, and expand your reach. Become a verified partner now!</p>
+      <button mat-raised-button color="primary" routerLink="/auth/register">Join Our Network</button>
     </div>
   </section>
 </div>

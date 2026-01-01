@@ -3,6 +3,7 @@ import { BookingService } from '@core/services/booking.service';
 import { Booking, Service, User } from '@core/models';
 
 @Component({
+  standalone: false,
   selector: 'app-provider-dashboard',
   templateUrl: './provider-dashboard.component.html',
   styleUrls: ['./provider-dashboard.component.scss']

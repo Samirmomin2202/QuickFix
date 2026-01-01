@@ -5,6 +5,7 @@ import { User } from '@core/models';
 import { Observable } from 'rxjs';
 
 @Component({
+  standalone: false,
   selector: 'app-header',
   template: `
     <mat-toolbar class="header">

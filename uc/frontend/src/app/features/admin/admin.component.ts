@@ -5,6 +5,7 @@ import { CategoryService } from '@core/services/category.service';
 import { AuthService } from '@core/services/auth.service';
 
 @Component({
+  standalone: false,
   selector: 'app-admin',
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.scss']

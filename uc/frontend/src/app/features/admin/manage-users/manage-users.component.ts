@@ -12,6 +12,7 @@ interface UserData {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-manage-users',
   templateUrl: './manage-users.component.html',
   styleUrls: ['./manage-users.component.scss']

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { BookingService } from '@core/services/booking.service';
 
 @Component({
+  standalone: false,
   selector: 'app-booking-list',
   templateUrl: './booking-list.component.html',
   styleUrls: ['./booking-list.component.scss']

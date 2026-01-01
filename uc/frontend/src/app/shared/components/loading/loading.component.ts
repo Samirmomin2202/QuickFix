@@ -3,6 +3,7 @@ import { LoadingService } from '@core/services/loading.service';
 import { Observable } from 'rxjs';
 
 @Component({
+  standalone: false,
   selector: 'app-loading',
   template: `
     <div class="loading-overlay" *ngIf="loading$ | async">
