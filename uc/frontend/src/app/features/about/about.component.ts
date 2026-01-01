@@ -48,28 +48,22 @@ export class AboutComponent {
 
   team = [
     {
-      name: 'Rahul Sharma',
+      name: 'Manya Singh',
       role: 'Founder & CEO',
-      image: 'https://via.placeholder.com/200x200?text=RS',
+      image: 'https://avatar.iran.liara.run/public/16',
       description: 'Visionary leader with 15+ years in service industry'
     },
     {
-      name: 'Priya Patel',
+      name: 'Parth Patel',
       role: 'Head of Operations',
-      image: 'https://via.placeholder.com/200x200?text=PP',
+      image: 'https://avatar.iran.liara.run/public/47',
       description: 'Expert in operations management and quality control'
     },
     {
-      name: 'Amit Kumar',
+      name: 'Sam Momin',
       role: 'Technology Director',
-      image: 'https://via.placeholder.com/200x200?text=AK',
+      image: 'https://avatar.iran.liara.run/public/41',
       description: 'Tech innovator driving digital transformation'
-    },
-    {
-      name: 'Sneha Reddy',
-      role: 'Customer Success Lead',
-      image: 'https://via.placeholder.com/200x200?text=SR',
-      description: 'Passionate about delivering exceptional customer experience'
     }
   ];
 }

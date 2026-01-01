@@ -5,8 +5,11 @@ import { Component } from '@angular/core';
   template: `
     <footer class="footer">
       <div class="footer-container">
-        <div class="footer-section">
-          <h3>QuickFix</h3>
+        <div class="footer-section brand-section">
+          <div class="footer-logo">
+            <img src="assets/images/quickfix-logo.jpg" alt="QuickFix Logo" class="logo-img">
+            <h3>QuickFix</h3>
+          </div>
           <p>Your trusted service marketplace</p>
         </div>
 
@@ -48,6 +51,22 @@ import { Component } from '@angular/core';
       color: white;
       padding: 40px 20px 20px;
       margin-top: 60px;
+
+      .footer-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+
+        .logo-img {
+          height: 36px;
+          width: auto;
+          object-fit: contain;
+          background: white;
+          padding: 6px;
+          border-radius: 6px;
+        }
+      }
     }
 
     .footer-container {

@@ -10,6 +10,7 @@ import { Observable } from 'rxjs';
     <mat-toolbar class="header">
       <div class="header-container">
         <div class="logo" routerLink="/">
+          <img src="assets/images/quickfix-logo.jpg" alt="QuickFix Logo" class="logo-img">
           <h1>QuickFix</h1>
         </div>
 
@@ -97,7 +98,17 @@ import { Observable } from 'rxjs';
     }
 
     .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
       cursor: pointer;
+
+      .logo-img {
+        height: 40px;
+        width: auto;
+        object-fit: contain;
+      }
+
       h1 {
         margin: 0;
         font-size: 24px;
