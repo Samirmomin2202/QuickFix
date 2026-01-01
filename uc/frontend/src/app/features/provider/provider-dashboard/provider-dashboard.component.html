@@ -1,0 +1,143 @@
+<div class="provider-dashboard">
+  <div class="container">
+    <h1>Provider Dashboard</h1>
+
+    <div class="stats-grid">
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-icon">
+            <mat-icon>assignment</mat-icon>
+          </div>
+          <h3>{{stats.total}}</h3>
+          <p>Total Bookings</p>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card pending">
+        <mat-card-content>
+          <div class="stat-icon">
+            <mat-icon>pending</mat-icon>
+          </div>
+          <h3>{{stats.pending}}</h3>
+          <p>Pending</p>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card confirmed">
+        <mat-card-content>
+          <div class="stat-icon">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <h3>{{stats.confirmed}}</h3>
+          <p>Confirmed</p>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card completed">
+        <mat-card-content>
+          <div class="stat-icon">
+            <mat-icon>done_all</mat-icon>
+          </div>
+          <h3>{{stats.completed}}</h3>
+          <p>Completed</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <mat-card class="bookings-table">
+      <mat-card-header>
+        <mat-card-title>Your Bookings</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <ng-container *ngIf="loading">
+          <div class="loading-container">
+            <mat-spinner></mat-spinner>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="!loading">
+          <ng-container *ngIf="bookings.length === 0">
+            <div class="empty-state">
+              <mat-icon>assignment_late</mat-icon>
+              <h3>No bookings yet</h3>
+              <p>You don't have any assigned bookings at the moment.</p>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="bookings.length > 0">
+            <div class="bookings-list">
+              <mat-card class="booking-card" *ngFor="let booking of bookings">
+                <div class="booking-header">
+                  <div class="booking-info">
+                    <h3>{{getServiceName(booking)}}</h3>
+                    <p class="customer-name">
+                      <mat-icon>person</mat-icon>
+                      {{getUserName(booking)}}
+                    </p>
+                  </div>
+                  <mat-chip [color]="getStatusColor(booking.status)" selected>
+                    {{booking.status}}
+                  </mat-chip>
+                </div>
+
+                <div class="booking-details">
+                  <div class="detail-item">
+                    <mat-icon>calendar_today</mat-icon>
+                    <span>{{formatDate(booking.scheduledDate)}}</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>access_time</mat-icon>
+                    <span>{{booking.scheduledTime}}</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>location_on</mat-icon>
+                    <span>{{booking.address?.city}}, {{booking.address?.state}}</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>phone</mat-icon>
+                    <span>{{getUserPhone(booking)}}</span>
+                  </div>
+                  <div class="detail-item amount">
+                    <mat-icon>payments</mat-icon>
+                    <span>₹{{booking.totalAmount}}</span>
+                  </div>
+                </div>
+
+                <ng-container *ngIf="booking.status === 'pending' || booking.status === 'confirmed' || booking.status === 'in-progress'">
+                  <div class="booking-actions">
+                    <button mat-button 
+                            *ngIf="booking.status === 'pending'"
+                            (click)="updateBookingStatus(booking._id, 'confirmed')">
+                      <mat-icon>check</mat-icon> Confirm
+                    </button>
+                    <button mat-button color="primary"
+                            *ngIf="booking.status === 'confirmed'"
+                            (click)="updateBookingStatus(booking._id, 'in-progress')">
+                      <mat-icon>play_arrow</mat-icon> Start
+                    </button>
+                    <button mat-raised-button color="primary"
+                            *ngIf="booking.status === 'in-progress'"
+                            (click)="updateBookingStatus(booking._id, 'completed')">
+                      <mat-icon>done</mat-icon> Complete
+                    </button>
+                  </div>
+                </ng-container>
+
+                <div class="address-full" *ngIf="booking.address?.street">
+                  <strong>Full Address:</strong>
+                  <p>{{booking.address.street}}, {{booking.address.city}}, {{booking.address.state}} - {{booking.address.pincode}}</p>
+                  <p *ngIf="booking.address.landmark">Landmark: {{booking.address.landmark}}</p>
+                </div>
+
+                <div class="notes" *ngIf="booking.notes">
+                  <strong>Special Instructions:</strong>
+                  <p>{{booking.notes}}</p>
+                </div>
+              </mat-card>
+            </div>
+          </ng-container>
+        </ng-container>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

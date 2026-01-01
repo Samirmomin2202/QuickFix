@@ -1,0 +1,139 @@
+<div class="contact-page">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <h1>Contact Us</h1>
+      <p class="subtitle">We'd love to hear from you. Get in touch with us!</p>
+    </div>
+  </section>
+
+  <!-- Contact Info Section -->
+  <section class="contact-info-section">
+    <div class="container">
+      <div class="info-grid">
+        <mat-card *ngFor="let info of contactInfo" class="info-card">
+          <mat-icon color="primary">{{info.icon}}</mat-icon>
+          <h3>{{info.title}}</h3>
+          <p *ngFor="let detail of info.details">{{detail}}</p>
+        </mat-card>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Form Section -->
+  <section class="form-section">
+    <div class="container">
+      <div class="form-container">
+        <div class="form-header">
+          <h2>Send Us a Message</h2>
+          <p>Fill out the form below and we'll get back to you as soon as possible</p>
+        </div>
+
+        <div *ngIf="submitSuccess" class="success-message">
+          <mat-icon>check_circle</mat-icon>
+          <p>Thank you for contacting us! We'll get back to you soon.</p>
+        </div>
+
+        <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Full Name</mat-label>
+              <input matInput formControlName="name" placeholder="Enter your name">
+              <mat-error *ngIf="f['name'].errors?.['required'] && submitted">
+                Name is required
+              </mat-error>
+              <mat-error *ngIf="f['name'].errors?.['minlength']">
+                Name must be at least 3 characters
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input matInput type="email" formControlName="email" placeholder="your@email.com">
+              <mat-error *ngIf="f['email'].errors?.['required'] && submitted">
+                Email is required
+              </mat-error>
+              <mat-error *ngIf="f['email'].errors?.['email']">
+                Please enter a valid email
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Phone Number</mat-label>
+              <input matInput formControlName="phone" placeholder="9876543210">
+              <mat-error *ngIf="f['phone'].errors?.['required'] && submitted">
+                Phone is required
+              </mat-error>
+              <mat-error *ngIf="f['phone'].errors?.['pattern']">
+                Please enter a valid 10-digit phone number
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Subject</mat-label>
+              <mat-select formControlName="subject">
+                <mat-option value="general">General Inquiry</mat-option>
+                <mat-option value="booking">Booking Support</mat-option>
+                <mat-option value="technical">Technical Issue</mat-option>
+                <mat-option value="feedback">Feedback</mat-option>
+                <mat-option value="partnership">Partnership</mat-option>
+                <mat-option value="other">Other</mat-option>
+              </mat-select>
+              <mat-error *ngIf="f['subject'].errors?.['required'] && submitted">
+                Please select a subject
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Message</mat-label>
+            <textarea matInput formControlName="message" rows="6" 
+                      placeholder="Tell us how we can help you..."></textarea>
+            <mat-error *ngIf="f['message'].errors?.['required'] && submitted">
+              Message is required
+            </mat-error>
+            <mat-error *ngIf="f['message'].errors?.['minlength']">
+              Message must be at least 10 characters
+            </mat-error>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" type="submit">
+            <mat-icon>send</mat-icon>
+            Send Message
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="faq-section">
+    <div class="container">
+      <h2>Frequently Asked Questions</h2>
+      <mat-accordion>
+        <mat-expansion-panel *ngFor="let faq of faqs">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{faq.question}}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <p>{{faq.answer}}</p>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </section>
+
+  <!-- Map Section -->
+  <section class="map-section">
+    <div class="container">
+      <h2>Find Us Here</h2>
+      <div class="map-placeholder">
+        <mat-icon>location_on</mat-icon>
+        <p>123 Service Street, Tech Park, Bangalore - 560001</p>
+        <small>Interactive map integration available</small>
+      </div>
+    </div>
+  </section>
+</div>

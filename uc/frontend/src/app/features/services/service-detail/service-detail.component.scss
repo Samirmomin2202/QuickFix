@@ -1,0 +1,242 @@
+.service-detail {
+  padding: 20px;
+  background: #f5f5f5;
+  min-height: calc(100vh - 140px);
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .back-btn {
+    margin-bottom: 20px;
+  }
+
+  .service-content {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 30px;
+
+    @media (max-width: 968px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .service-info {
+    .service-image {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 30px;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .discount-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: #ff6584;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 16px;
+      }
+    }
+
+    .service-details {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+
+      h1 {
+        font-size: 32px;
+        margin-bottom: 15px;
+        color: #333;
+      }
+
+      .rating {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+
+        mat-icon {
+          color: #ffc107;
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+        }
+
+        span {
+          font-size: 16px;
+          color: #666;
+        }
+      }
+
+      .price-section {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+
+        .current-price {
+          font-size: 36px;
+          font-weight: 700;
+          color: #6e45e2;
+        }
+
+        .original-price {
+          font-size: 20px;
+          color: #999;
+          text-decoration: line-through;
+        }
+
+        .duration {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          color: #666;
+          margin-left: auto;
+
+          mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+        }
+      }
+
+      .description {
+        margin-bottom: 30px;
+
+        h3 {
+          font-size: 20px;
+          margin-bottom: 10px;
+          color: #333;
+        }
+
+        p {
+          color: #666;
+          line-height: 1.8;
+        }
+      }
+
+      .features {
+        h3 {
+          font-size: 20px;
+          margin-bottom: 15px;
+          color: #333;
+        }
+
+        ul {
+          list-style: none;
+          padding: 0;
+
+          li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            color: #666;
+
+            mat-icon {
+              color: #4caf50;
+              font-size: 20px;
+              width: 20px;
+              height: 20px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .booking-form {
+    mat-card {
+      position: sticky;
+      top: 20px;
+
+      mat-card-header {
+        margin-bottom: 20px;
+
+        mat-card-title {
+          font-size: 24px;
+          color: #333;
+        }
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+
+        h4 {
+          margin: 15px 0 10px 0;
+          color: #333;
+          font-size: 16px;
+          font-weight: 600;
+        }
+
+        mat-form-field {
+          width: 100%;
+        }
+
+        .schedule-fields {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 15px;
+        }
+
+        .address-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr 100px;
+          gap: 10px;
+        }
+
+        .total-amount {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 20px;
+          background: #f5f5f5;
+          border-radius: 8px;
+          margin-top: 10px;
+
+          span {
+            font-size: 18px;
+            color: #333;
+          }
+
+          .amount {
+            font-size: 28px;
+            font-weight: 700;
+            color: #6e45e2;
+          }
+        }
+
+        button[type="submit"] {
+          width: 100%;
+          height: 50px;
+          font-size: 16px;
+          margin-top: 10px;
+        }
+      }
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}

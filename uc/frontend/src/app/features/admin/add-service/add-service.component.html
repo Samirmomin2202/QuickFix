@@ -1,0 +1,102 @@
+<div class="add-service">
+  <div class="container">
+    <h1>Add New Service</h1>
+
+    <mat-card>
+      <mat-card-content>
+        <form [formGroup]="serviceForm" (ngSubmit)="onSubmit()">
+          <mat-form-field appearance="outline">
+            <mat-label>Service Name</mat-label>
+            <input matInput formControlName="name" placeholder="e.g., Hair Cut">
+            <mat-error *ngIf="serviceForm.get('name')?.hasError('required')">
+              Service name is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="4" placeholder="Describe the service"></textarea>
+            <mat-error *ngIf="serviceForm.get('description')?.hasError('required')">
+              Description is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Category</mat-label>
+            <mat-select formControlName="category">
+              <mat-option *ngFor="let category of categories" [value]="category._id">
+                {{ category.name }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="serviceForm.get('category')?.hasError('required')">
+              Category is required
+            </mat-error>
+          </mat-form-field>
+
+          <div class="price-fields">
+            <mat-form-field appearance="outline">
+              <mat-label>Price (₹)</mat-label>
+              <input matInput type="number" formControlName="price" placeholder="0">
+              <mat-error *ngIf="serviceForm.get('price')?.hasError('required')">
+                Price is required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Discount Price (₹)</mat-label>
+              <input matInput type="number" formControlName="discountPrice" placeholder="0">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Duration (minutes)</mat-label>
+              <input matInput type="number" formControlName="duration" placeholder="30">
+              <mat-error *ngIf="serviceForm.get('duration')?.hasError('required')">
+                Duration is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Image URL</mat-label>
+            <input matInput formControlName="image" placeholder="https://example.com/image.jpg" (input)="onImageUrlChange()">
+            <mat-error *ngIf="serviceForm.get('image')?.hasError('required')">
+              Image is required
+            </mat-error>
+          </mat-form-field>
+
+          <div class="upload-section">
+            <p class="or-divider">OR Upload Image</p>
+            <div class="file-upload">
+              <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none">
+              <button mat-stroked-button type="button" (click)="fileInput.click()">
+                <mat-icon>cloud_upload</mat-icon>
+                Choose Image File
+              </button>
+              <span class="file-name" *ngIf="selectedFileName">{{ selectedFileName }}</span>
+            </div>
+          </div>
+
+          <div class="image-preview" *ngIf="imagePreviewUrl">
+            <h3>Image Preview</h3>
+            <img [src]="imagePreviewUrl" 
+                 alt="Service preview"
+                 (error)="onImageError($event)">
+          </div>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Features (comma separated)</mat-label>
+            <textarea matInput formControlName="features" rows="3" placeholder="Feature 1, Feature 2, Feature 3"></textarea>
+          </mat-form-field>
+
+          <div class="form-actions">
+            <button mat-raised-button type="button" routerLink="/admin">Cancel</button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="!serviceForm.valid || loading">
+              <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+              <span *ngIf="!loading">Add Service</span>
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

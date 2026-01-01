@@ -1,0 +1,106 @@
+<div class="manage-services">
+  <div class="container">
+    <div class="header">
+      <h1>Manage Services</h1>
+      <div class="header-actions">
+        <button mat-raised-button color="accent" routerLink="/admin/add-service">
+          <mat-icon>add</mat-icon>
+          Add New Service
+        </button>
+        <button mat-raised-button color="primary" routerLink="/admin">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Dashboard
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="loading-container">
+      <mat-spinner></mat-spinner>
+    </div>
+
+    <div *ngIf="!loading && services.length === 0" class="no-data">
+      <mat-icon>inbox</mat-icon>
+      <p>No services found. Add your first service!</p>
+      <button mat-raised-button color="primary" routerLink="/admin/add-service">
+        <mat-icon>add</mat-icon>
+        Add Service
+      </button>
+    </div>
+
+    <div *ngIf="!loading && services.length > 0" class="services-grid">
+      <mat-card *ngFor="let service of services" class="service-card">
+        <div class="service-image-container">
+          <img [src]="service.image" [alt]="service.name">
+          <input type="file" 
+                 #fileInput
+                 (change)="onImageSelected($event, service)" 
+                 accept="image/*" 
+                 style="display: none;">
+          <button mat-mini-fab 
+                  color="primary" 
+                  class="upload-btn"
+                  (click)="fileInput.click()"
+                  type="button">
+            <mat-icon>camera_alt</mat-icon>
+          </button>
+          <mat-chip class="featured-badge" *ngIf="service.isFeatured" color="accent" selected>
+            <mat-icon>star</mat-icon>
+            Featured
+          </mat-chip>
+        </div>
+
+        <mat-card-header>
+          <mat-card-title>{{service.name}}</mat-card-title>
+          <mat-card-subtitle>{{getCategoryName(service.category)}}</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <p class="description">{{service.description}}</p>
+          
+          <div class="service-meta">
+            <div class="meta-item">
+              <mat-icon>schedule</mat-icon>
+              <span>{{service.duration}} min</span>
+            </div>
+            <div class="meta-item">
+              <mat-icon>currency_rupee</mat-icon>
+              <span *ngIf="service.discountPrice && service.discountPrice < service.price">
+                <s>₹{{service.price}}</s> 
+                <strong class="discount-price">₹{{service.discountPrice}}</strong>
+              </span>
+              <span *ngIf="!service.discountPrice || service.discountPrice >= service.price">
+                <strong>₹{{service.price}}</strong>
+              </span>
+            </div>
+            <div class="meta-item">
+              <mat-icon>star</mat-icon>
+              <span>{{service.rating || 0}} ({{service.reviewCount || 0}})</span>
+            </div>
+          </div>
+
+          <div class="features" *ngIf="service.features && service.features.length > 0">
+            <mat-chip-listbox>
+              <mat-chip *ngFor="let feature of service.features">{{feature}}</mat-chip>
+            </mat-chip-listbox>
+          </div>
+        </mat-card-content>
+
+        <mat-card-actions>
+          <button mat-button color="primary" (click)="editService(service)">
+            <mat-icon>edit</mat-icon>
+            Edit
+          </button>
+          <button mat-button [color]="service.isFeatured ? 'warn' : 'accent'" 
+                  (click)="toggleFeatured(service)">
+            <mat-icon>{{service.isFeatured ? 'star_border' : 'star'}}</mat-icon>
+            {{service.isFeatured ? 'Unfeature' : 'Feature'}}
+          </button>
+          <button mat-button color="warn" (click)="deleteService(service)">
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+</div>

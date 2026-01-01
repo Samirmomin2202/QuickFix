@@ -1,0 +1,255 @@
+.hero {
+  background: linear-gradient(135deg, #6e45e2 0%, #88d3ce 100%);
+  color: white;
+  padding: 80px 20px;
+  text-align: center;
+
+  .hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+
+    h1 {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 20px;
+      margin-bottom: 30px;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+      max-width: 600px;
+      margin: 0 auto;
+
+      mat-form-field {
+        flex: 1;
+        
+        ::ng-deep {
+          .mat-form-field-wrapper {
+            padding-bottom: 0;
+          }
+          
+          .mat-form-field-outline {
+            background: white;
+            border-radius: 8px;
+          }
+
+          .mat-form-field-infix {
+            padding: 12px 0;
+          }
+        }
+      }
+
+      button {
+        height: 56px;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 60px 20px;
+
+    .hero-content {
+      h1 {
+        font-size: 32px;
+      }
+
+      p {
+        font-size: 16px;
+      }
+
+      .search-box {
+        flex-direction: column;
+      }
+    }
+  }
+}
+
+.categories-section {
+  .category-card {
+    cursor: pointer;
+    text-align: center;
+    padding: 30px 20px;
+
+    .category-icon {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80px;
+
+      img {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e3e8ef 100%);
+        padding: 10px;
+        transition: transform 0.3s ease;
+      }
+    }
+
+    &:hover .category-icon img {
+      transform: scale(1.1);
+    }
+
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text-dark);
+    }
+
+    p {
+      color: var(--text-light);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  }
+}
+
+.featured-section {
+  background: white;
+
+  .service-card {
+    cursor: pointer;
+    overflow: hidden;
+
+    .service-image {
+      position: relative;
+      height: 200px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e3e8ef 100%);
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+        background-color: #f8f9fa;
+      }
+
+      .service-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #ff6584;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+    }
+
+    &:hover .service-image img {
+      transform: scale(1.1);
+    }
+
+    mat-card-content {
+      padding: 16px;
+
+      h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--text-dark);
+        min-height: 40px;
+      }
+
+      .service-rating {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 10px;
+
+        mat-icon {
+          color: #ffc107;
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+
+        span {
+          font-size: 14px;
+          color: var(--text-dark);
+        }
+      }
+
+      .service-price {
+        margin-bottom: 10px;
+
+        .current-price {
+          font-size: 20px;
+          font-weight: 700;
+          color: var(--primary-color);
+        }
+
+        .original-price {
+          font-size: 14px;
+          color: var(--text-light);
+          text-decoration: line-through;
+          margin-left: 8px;
+        }
+      }
+
+      .service-duration {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: var(--text-light);
+        font-size: 14px;
+
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
+
+    mat-card-actions {
+      padding: 0 16px 16px;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.features-section {
+  .feature-item {
+    text-align: center;
+    padding: 30px 20px;
+
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      margin-bottom: 20px;
+    }
+
+    h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text-dark);
+    }
+
+    p {
+      color: var(--text-light);
+      line-height: 1.6;
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 60px 0;
+}

@@ -1,0 +1,124 @@
+<div class="view-reports">
+  <div class="container">
+    <div class="header">
+      <h1>Analytics & Reports</h1>
+      <button mat-raised-button color="primary" routerLink="/admin">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Dashboard
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="loading-container">
+      <mat-spinner></mat-spinner>
+    </div>
+
+    <div *ngIf="!loading">
+      <!-- Summary Stats -->
+      <div class="summary-stats">
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <mat-icon color="primary">assessment</mat-icon>
+            <h3>₹{{reportData.averageBookingValue}}</h3>
+            <p>Average Booking Value</p>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <mat-icon color="primary">trending_up</mat-icon>
+            <h3>{{reportData.totalBookings}}</h3>
+            <p>Total Bookings</p>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <mat-icon color="primary">build</mat-icon>
+            <h3>{{reportData.totalServices}}</h3>
+            <p>Active Services</p>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <mat-icon color="primary">payments</mat-icon>
+            <h3>₹{{reportData.totalRevenue}}</h3>
+            <p>Total Revenue</p>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Bookings by Status -->
+      <mat-card class="report-card">
+        <mat-card-header>
+          <mat-card-title>Bookings by Status</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="status-grid">
+            <div class="status-item">
+              <mat-icon color="warn">pending</mat-icon>
+              <div>
+                <h3>{{reportData.bookingsByStatus.pending}}</h3>
+                <p>Pending</p>
+              </div>
+            </div>
+            <div class="status-item">
+              <mat-icon color="primary">check_circle</mat-icon>
+              <div>
+                <h3>{{reportData.bookingsByStatus.confirmed}}</h3>
+                <p>Confirmed</p>
+              </div>
+            </div>
+            <div class="status-item">
+              <mat-icon color="accent">play_circle</mat-icon>
+              <div>
+                <h3>{{reportData.bookingsByStatus.inProgress}}</h3>
+                <p>In Progress</p>
+              </div>
+            </div>
+            <div class="status-item">
+              <mat-icon style="color: #4caf50">done_all</mat-icon>
+              <div>
+                <h3>{{reportData.bookingsByStatus.completed}}</h3>
+                <p>Completed</p>
+              </div>
+            </div>
+            <div class="status-item">
+              <mat-icon style="color: #999">cancel</mat-icon>
+              <div>
+                <h3>{{reportData.bookingsByStatus.cancelled}}</h3>
+                <p>Cancelled</p>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Recent Bookings -->
+      <mat-card class="report-card">
+        <mat-card-header>
+          <mat-card-title>Recent Bookings</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div *ngIf="reportData.recentBookings.length === 0" class="empty-state">
+            <p>No bookings yet</p>
+          </div>
+          <div *ngIf="reportData.recentBookings.length > 0" class="bookings-list">
+            <div *ngFor="let booking of reportData.recentBookings" class="booking-item">
+              <div class="booking-info">
+                <h4>{{getServiceName(booking)}}</h4>
+                <p>Customer: {{getUserName(booking)}}</p>
+              </div>
+              <div class="booking-meta">
+                <mat-chip [color]="booking.status === 'completed' ? 'accent' : 'primary'" selected>
+                  {{booking.status}}
+                </mat-chip>
+                <span class="amount">₹{{booking.totalAmount}}</span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

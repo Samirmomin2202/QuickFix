@@ -1,0 +1,257 @@
+<div class="admin-dashboard">
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div>
+        <h1>Dashboard</h1>
+        <p class="subtitle">Welcome back, Admin</p>
+      </div>
+      <div class="header-actions">
+        <button mat-stroked-button>
+          <mat-icon>calendar_today</mat-icon>
+          Last 30 Days
+        </button>
+        <button mat-raised-button color="primary" routerLink="/admin/add-service">
+          <mat-icon>add</mat-icon>
+          Add Service
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div *ngIf="loading" class="loading-container">
+      <mat-spinner></mat-spinner>
+    </div>
+
+    <div *ngIf="!loading">
+      <!-- Top Stats Cards -->
+      <div class="stats-grid">
+        <mat-card class="stat-card revenue">
+          <div class="stat-header">
+            <span class="stat-label">Total Revenue</span>
+            <mat-icon>trending_up</mat-icon>
+          </div>
+          <div class="stat-value">₹{{stats.totalRevenue.toLocaleString()}}</div>
+          <div class="stat-footer">
+            <span class="stat-change positive">+12.5%</span>
+            <span class="stat-period">vs last month</span>
+          </div>
+        </mat-card>
+
+        <mat-card class="stat-card bookings">
+          <div class="stat-header">
+            <span class="stat-label">Total Bookings</span>
+            <mat-icon>book_online</mat-icon>
+          </div>
+          <div class="stat-value">{{stats.totalBookings}}</div>
+          <div class="stat-footer">
+            <span class="stat-change positive">+8.2%</span>
+            <span class="stat-period">vs last month</span>
+          </div>
+        </mat-card>
+
+        <mat-card class="stat-card services">
+          <div class="stat-header">
+            <span class="stat-label">Active Services</span>
+            <mat-icon>build</mat-icon>
+          </div>
+          <div class="stat-value">{{stats.totalServices}}</div>
+          <div class="stat-footer">
+            <span class="stat-change positive">+5.1%</span>
+            <span class="stat-period">vs last month</span>
+          </div>
+        </mat-card>
+
+        <mat-card class="stat-card users">
+          <div class="stat-header">
+            <span class="stat-label">Total Users</span>
+            <mat-icon>people</mat-icon>
+          </div>
+          <div class="stat-value">{{stats.totalUsers}}</div>
+          <div class="stat-footer">
+            <span class="stat-change positive">+15.3%</span>
+            <span class="stat-period">vs last month</span>
+          </div>
+        </mat-card>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="main-grid">
+        <!-- Chart Card -->
+        <mat-card class="chart-card">
+          <mat-card-header>
+            <mat-card-title>Revenue Overview</mat-card-title>
+            <div class="chart-actions">
+              <button mat-button class="active">Week</button>
+              <button mat-button>Month</button>
+              <button mat-button>Year</button>
+            </div>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-container">
+              <div class="chart-placeholder">
+                <div class="bar-chart">
+                  <div class="bar" style="height: 45%"></div>
+                  <div class="bar" style="height: 30%"></div>
+                  <div class="bar" style="height: 60%"></div>
+                  <div class="bar" style="height: 40%"></div>
+                  <div class="bar" style="height: 75%"></div>
+                  <div class="bar" style="height: 55%"></div>
+                  <div class="bar" style="height: 85%"></div>
+                  <div class="bar" style="height: 50%"></div>
+                  <div class="bar" style="height: 65%"></div>
+                  <div class="bar" style="height: 45%"></div>
+                  <div class="bar" style="height: 70%"></div>
+                  <div class="bar" style="height: 60%"></div>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Activity Feed -->
+        <mat-card class="activity-card">
+          <mat-card-header>
+            <mat-card-title>Recent Activity</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="activity-list">
+              <div class="activity-item">
+                <div class="activity-icon blue">
+                  <mat-icon>shopping_cart</mat-icon>
+                </div>
+                <div class="activity-details">
+                  <p class="activity-title">New Booking</p>
+                  <p class="activity-time">2 minutes ago</p>
+                </div>
+                <span class="activity-value">₹549</span>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon green">
+                  <mat-icon>person_add</mat-icon>
+                </div>
+                <div class="activity-details">
+                  <p class="activity-title">New User Registration</p>
+                  <p class="activity-time">15 minutes ago</p>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon orange">
+                  <mat-icon>build</mat-icon>
+                </div>
+                <div class="activity-details">
+                  <p class="activity-title">Service Completed</p>
+                  <p class="activity-time">1 hour ago</p>
+                </div>
+                <span class="activity-value">₹1,299</span>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon purple">
+                  <mat-icon>star</mat-icon>
+                </div>
+                <div class="activity-details">
+                  <p class="activity-title">New Review Added</p>
+                  <p class="activity-time">2 hours ago</p>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Bottom Stats -->
+      <div class="bottom-stats">
+        <mat-card class="metric-card">
+          <div class="metric-header">
+            <span class="metric-label">Pending Bookings</span>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value">{{stats.pendingBookings || 0}}</div>
+            <div class="mini-chart blue">
+              <svg viewBox="0 0 100 30">
+                <polyline points="0,20 20,15 40,18 60,10 80,12 100,8" fill="none" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </div>
+          </div>
+          <div class="metric-footer">
+            <span class="trend up">↑ 5.2%</span>
+          </div>
+        </mat-card>
+
+        <mat-card class="metric-card">
+          <div class="metric-header">
+            <span class="metric-label">Avg. Booking Value</span>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value">₹{{stats.avgBookingValue || 0}}</div>
+            <div class="mini-chart green">
+              <svg viewBox="0 0 100 30">
+                <polyline points="0,15 20,18 40,12 60,14 80,8 100,10" fill="none" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </div>
+          </div>
+          <div class="metric-footer">
+            <span class="trend up">↑ 8.1%</span>
+          </div>
+        </mat-card>
+
+        <mat-card class="metric-card">
+          <div class="metric-header">
+            <span class="metric-label">Completion Rate</span>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value">{{stats.completionRate || 0}}%</div>
+            <div class="mini-chart orange">
+              <svg viewBox="0 0 100 30">
+                <polyline points="0,25 20,20 40,22 60,15 80,18 100,12" fill="none" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </div>
+          </div>
+          <div class="metric-footer">
+            <span class="trend up">↑ 3.4%</span>
+          </div>
+        </mat-card>
+
+        <mat-card class="metric-card">
+          <div class="metric-header">
+            <span class="metric-label">Active Providers</span>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value">{{stats.activeProviders || 0}}</div>
+            <div class="mini-chart purple">
+              <svg viewBox="0 0 100 30">
+                <polyline points="0,18 20,16 40,20 60,12 80,14 100,9" fill="none" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </div>
+          </div>
+          <div class="metric-footer">
+            <span class="trend up">↑ 12.8%</span>
+          </div>
+        </mat-card>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <h2>Quick Actions</h2>
+        <div class="action-grid">
+          <button mat-raised-button class="action-btn" routerLink="/admin/add-service">
+            <mat-icon>add_circle</mat-icon>
+            <span>Add Service</span>
+          </button>
+          <button mat-raised-button class="action-btn" routerLink="/admin/manage-categories">
+            <mat-icon>category</mat-icon>
+            <span>Manage Categories</span>
+          </button>
+          <button mat-raised-button class="action-btn" routerLink="/admin/manage-users">
+            <mat-icon>people</mat-icon>
+            <span>Manage Users</span>
+          </button>
+          <button mat-raised-button class="action-btn" routerLink="/admin/view-reports">
+            <mat-icon>assessment</mat-icon>
+            <span>View Reports</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

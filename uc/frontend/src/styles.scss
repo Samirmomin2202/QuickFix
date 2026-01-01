@@ -1,0 +1,148 @@
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background: #f5f7fa;
+}
+
+html, body {
+  height: 100%;
+}
+
+/* Color Variables */
+:root {
+  --primary-color: #6e45e2;
+  --secondary-color: #88d3ce;
+  --accent-color: #ff6584;
+  --text-dark: #2c3e50;
+  --text-light: #7f8c8d;
+  --background-light: #f5f7fa;
+  --border-color: #e1e8ed;
+}
+
+/* Utility Classes */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section {
+  padding: 60px 0;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 40px;
+
+  h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: var(--text-light);
+    font-size: 16px;
+  }
+}
+
+/* Card Styles */
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+}
+
+/* Button Overrides */
+.mat-raised-button {
+  border-radius: 8px;
+  text-transform: none;
+  font-weight: 500;
+  padding: 0 24px;
+  height: 44px;
+}
+
+.mat-button {
+  text-transform: none;
+  font-weight: 500;
+}
+
+/* Form Styles */
+.mat-form-field {
+  width: 100%;
+}
+
+/* Responsive Grid */
+.grid {
+  display: grid;
+  gap: 24px;
+
+  &.grid-2 {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  &.grid-3 {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  &.grid-4 {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+/* Loading Spinner */
+mat-spinner {
+  margin: 20px auto;
+}
+
+/* Snackbar Overrides */
+.mat-snack-bar-container {
+  border-radius: 8px;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5a35c0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .section {
+    padding: 40px 0;
+  }
+
+  .section-title h2 {
+    font-size: 24px;
+  }
+
+  .grid {
+    gap: 16px;
+  }
+}

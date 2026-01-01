@@ -1,0 +1,135 @@
+<div class="service-detail" *ngIf="!loading">
+  <div class="container">
+    <button mat-button routerLink="/" class="back-btn">
+      <mat-icon>arrow_back</mat-icon> Back to Home
+    </button>
+
+    <div class="service-content" *ngIf="service">
+      <div class="service-info">
+        <div class="service-image">
+          <img [src]="service.image" 
+               [alt]="service.name"
+               (error)="onImageError($event)">
+          <div class="discount-badge" *ngIf="service.discountPrice">
+            {{getDiscountPercentage()}}% OFF
+          </div>
+        </div>
+
+        <div class="service-details">
+          <h1>{{service.name}}</h1>
+          
+          <div class="rating">
+            <mat-icon>star</mat-icon>
+            <span>{{service.rating}} ({{service.reviewCount}} reviews)</span>
+          </div>
+
+          <div class="price-section">
+            <span class="current-price">₹{{service.discountPrice || service.price}}</span>
+            <span class="original-price" *ngIf="service.discountPrice">₹{{service.price}}</span>
+            <span class="duration">
+              <mat-icon>schedule</mat-icon> {{service.duration}} mins
+            </span>
+          </div>
+
+          <div class="description">
+            <h3>About this service</h3>
+            <p>{{service.description}}</p>
+          </div>
+
+          <div class="features" *ngIf="service.features && service.features.length > 0">
+            <h3>What's included</h3>
+            <ul>
+              <li *ngFor="let feature of service.features">
+                <mat-icon>check_circle</mat-icon> {{feature}}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="booking-form">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Book This Service</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <form [formGroup]="bookingForm" (ngSubmit)="bookService()">
+              <h4>Schedule</h4>
+              <div class="schedule-fields">
+                <mat-form-field appearance="outline">
+                  <mat-label>Date</mat-label>
+                  <input matInput type="date" formControlName="scheduledDate">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Time</mat-label>
+                  <input matInput type="time" formControlName="scheduledTime">
+                </mat-form-field>
+              </div>
+
+              <h4>Address</h4>
+              <div formGroupName="address">
+                <mat-form-field appearance="outline">
+                  <mat-label>Street Address</mat-label>
+                  <input matInput formControlName="street">
+                </mat-form-field>
+
+                <div class="address-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>City</mat-label>
+                    <input matInput formControlName="city">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>State</mat-label>
+                    <input matInput formControlName="state">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Pincode</mat-label>
+                    <input matInput formControlName="pincode" maxlength="6">
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Landmark (Optional)</mat-label>
+                  <input matInput formControlName="landmark">
+                </mat-form-field>
+              </div>
+
+              <h4>Payment & Notes</h4>
+              <mat-form-field appearance="outline">
+                <mat-label>Payment Method</mat-label>
+                <mat-select formControlName="paymentMethod">
+                  <mat-option value="cash">Cash</mat-option>
+                  <mat-option value="card">Card</mat-option>
+                  <mat-option value="upi">UPI</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Special Instructions (Optional)</mat-label>
+                <textarea matInput formControlName="notes" rows="3"></textarea>
+              </mat-form-field>
+
+              <div class="total-amount">
+                <span>Total Amount:</span>
+                <span class="amount">₹{{service.discountPrice || service.price}}</span>
+              </div>
+
+              <button mat-raised-button color="primary" type="submit" 
+                      [disabled]="!bookingForm.valid || submitting">
+                <mat-spinner diameter="20" *ngIf="submitting"></mat-spinner>
+                <span *ngIf="!submitting">Confirm Booking</span>
+              </button>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="loading-container" *ngIf="loading">
+  <mat-spinner></mat-spinner>
+</div>

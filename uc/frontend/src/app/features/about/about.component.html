@@ -1,0 +1,87 @@
+<div class="about-page">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <h1>About QuickFix</h1>
+      <p class="subtitle">Your Trusted Partner for Home Services</p>
+    </div>
+  </section>
+
+  <!-- Mission Section -->
+  <section class="mission-section">
+    <div class="container">
+      <div class="mission-content">
+        <div class="mission-text">
+          <h2>Our Mission</h2>
+          <p>
+            At QuickFix, we're on a mission to revolutionize the way people access home services. 
+            We connect skilled professionals with customers who need their expertise, making quality 
+            service accessible, affordable, and reliable.
+          </p>
+          <p>
+            Founded in 2020, we've grown from a small startup to a trusted platform serving thousands 
+            of customers across multiple cities. Our commitment to excellence and customer satisfaction 
+            drives everything we do.
+          </p>
+        </div>
+        <div class="mission-image">
+          <img src="https://via.placeholder.com/500x400?text=Our+Mission" alt="Our Mission">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats-section">
+    <div class="container">
+      <div class="stats-grid">
+        <mat-card *ngFor="let stat of stats" class="stat-card">
+          <h3>{{stat.count}}</h3>
+          <p>{{stat.label}}</p>
+        </mat-card>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section">
+    <div class="container">
+      <h2>Why Choose QuickFix?</h2>
+      <div class="features-grid">
+        <mat-card *ngFor="let feature of features" class="feature-card">
+          <mat-icon color="primary">{{feature.icon}}</mat-icon>
+          <h3>{{feature.title}}</h3>
+          <p>{{feature.description}}</p>
+        </mat-card>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Section -->
+  <section class="team-section">
+    <div class="container">
+      <h2>Meet Our Team</h2>
+      <div class="team-grid">
+        <mat-card *ngFor="let member of team" class="team-card">
+          <img [src]="member.image" [alt]="member.name">
+          <mat-card-content>
+            <h3>{{member.name}}</h3>
+            <h4>{{member.role}}</h4>
+            <p>{{member.description}}</p>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Ready to Get Started?</h2>
+      <p>Join thousands of satisfied customers who trust QuickFix for their home service needs</p>
+      <button mat-raised-button color="primary" routerLink="/services">
+        Browse Services
+      </button>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,71 @@
+<div class="manage-users">
+  <div class="container">
+    <div class="header">
+      <h1>Manage Users</h1>
+      <button mat-raised-button color="primary" routerLink="/admin">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Dashboard
+      </button>
+    </div>
+
+    <div class="filter-section">
+      <mat-form-field appearance="outline">
+        <mat-label>Filter by Role</mat-label>
+        <mat-select [(value)]="filterRole">
+          <mat-option value="all">All Users</mat-option>
+          <mat-option value="user">Users</mat-option>
+          <mat-option value="service-provider">Service Providers</mat-option>
+          <mat-option value="admin">Administrators</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div *ngIf="loading" class="loading-container">
+      <mat-spinner></mat-spinner>
+    </div>
+
+    <div *ngIf="!loading" class="users-table">
+      <mat-card *ngFor="let user of filteredUsers" class="user-card">
+        <div class="user-header">
+          <div class="user-info">
+            <mat-icon class="user-avatar">account_circle</mat-icon>
+            <div>
+              <h3>{{user.name}}</h3>
+              <p>{{user.email}}</p>
+            </div>
+          </div>
+          <mat-chip [color]="getRoleBadgeColor(user.role)" selected>
+            {{user.role}}
+          </mat-chip>
+        </div>
+
+        <div class="user-details">
+          <div class="detail-item">
+            <mat-icon>phone</mat-icon>
+            <span>{{user.phone}}</span>
+          </div>
+          <div class="detail-item">
+            <mat-icon>calendar_today</mat-icon>
+            <span>Joined: {{user.createdAt | date:'mediumDate'}}</span>
+          </div>
+          <div class="detail-item">
+            <mat-icon>{{user.isActive ? 'check_circle' : 'cancel'}}</mat-icon>
+            <span>{{user.isActive ? 'Active' : 'Inactive'}}</span>
+          </div>
+        </div>
+
+        <mat-card-actions>
+          <button mat-button color="primary">
+            <mat-icon>visibility</mat-icon>
+            View Details
+          </button>
+          <button mat-button [color]="user.isActive ? 'warn' : 'primary'" 
+                  (click)="toggleUserStatus(user)">
+            <mat-icon>{{user.isActive ? 'block' : 'check_circle'}}</mat-icon>
+            {{user.isActive ? 'Deactivate' : 'Activate'}}
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+</div>
