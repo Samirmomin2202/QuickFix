@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '@core/services/auth.service';
+import { Location } from '@angular/common';
 
 @Component({
   standalone: false,
@@ -21,7 +22,8 @@ export class LoginComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private location: Location
   ) {}
 
   ngOnInit(): void {
@@ -62,5 +64,9 @@ export class LoginComponent implements OnInit {
         }
       });
     }
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 }

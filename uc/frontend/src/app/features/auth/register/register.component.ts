@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '@core/services/auth.service';
+import { Location } from '@angular/common';
 
 @Component({
   standalone: false,
@@ -19,7 +20,8 @@ export class RegisterComponent implements OnInit {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private location: Location
   ) {}
 
   ngOnInit(): void {
@@ -47,5 +49,9 @@ export class RegisterComponent implements OnInit {
         }
       });
     }
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 }

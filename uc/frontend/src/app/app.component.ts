@@ -7,12 +7,12 @@ import { filter } from 'rxjs/operators';
   standalone: false,
   selector: 'app-root',
   template: `
-    <app-header *ngIf="!isAdminRoute"></app-header>
+    <app-header *ngIf="!isAdminRoute && !isAuthRoute"></app-header>
     <app-sidebar></app-sidebar>
-    <main class="main-content" [class.with-sidebar]="shouldShowSidebar" [class.full-height]="isAdminRoute">
+    <main class="main-content" [class.with-sidebar]="shouldShowSidebar" [class.full-height]="isAdminRoute || isAuthRoute">
       <router-outlet></router-outlet>
     </main>
-    <app-footer *ngIf="!isAdminRoute"></app-footer>
+    <app-footer *ngIf="!isAdminRoute && !isAuthRoute"></app-footer>
     <app-loading></app-loading>
   `,
   styles: [`
@@ -38,6 +38,7 @@ export class AppComponent implements OnInit {
   title = 'QuickFix';
   shouldShowSidebar = false;
   isAdminRoute = false;
+  isAuthRoute = false;
 
   constructor(
     private authService: AuthService,
@@ -62,6 +63,7 @@ export class AppComponent implements OnInit {
   }
 
   private checkRoute(url: string): void {
+    this.isAuthRoute = url.startsWith('/auth');
     this.isAdminRoute = url.startsWith('/admin') || url.startsWith('/provider');
     this.shouldShowSidebar = this.isAdminRoute;
   }

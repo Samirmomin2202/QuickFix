@@ -71,6 +71,7 @@ import { Observable } from 'rxjs';
             <button mat-raised-button color="primary" routerLink="/auth/login">
               Login
             </button>
+            
           </ng-template>
         </div>
       </div>

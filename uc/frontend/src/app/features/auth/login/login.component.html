@@ -1,58 +1,113 @@
 <div class="auth-container">
-  <mat-card class="auth-card">
-    <mat-card-header>
-      <div class="login-brand">
-        <img src="assets/images/quickfix-logo.jpg" alt="QuickFix Logo" class="brand-logo">
-        <mat-card-title>Login to QuickFix</mat-card-title>
-      </div>
-    </mat-card-header>
+  <!-- Back Button -->
+  <button mat-icon-button class="back-button" (click)="goBack()">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
 
-    <mat-card-content>
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="outline">
-          <mat-label>Email</mat-label>
-          <input matInput type="email" formControlName="email" placeholder="your@email.com">
-          <mat-icon matPrefix>email</mat-icon>
-          <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
-            Email is required
-          </mat-error>
-          <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
-            Please enter a valid email
-          </mat-error>
-        </mat-form-field>
+  <div class="auth-wrapper">
+    <!-- Left Side - Login Form -->
+    <div class="auth-form-section">
+      <div class="form-container">
+        <div class="login-header">
+          <div class="logo-wrapper">
+            <img src="assets/images/quickfix-logo.jpg" alt="QuickFix Logo" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="text-logo">
+              <span class="logo-text">QuickFix</span>
+            </div>
+          </div>
+          <h1 class="login-title">Welcome Back</h1>
+          <p class="login-subtitle">Login to continue to QuickFix</p>
+        </div>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Password</mat-label>
-          <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
-          <mat-icon matPrefix>lock</mat-icon>
-          <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
-            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          <mat-form-field appearance="outline">
+            <mat-label>Username or email</mat-label>
+            <input matInput type="email" formControlName="email">
+            <mat-icon matPrefix>person_outline</mat-icon>
+            <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
+              Email is required
+            </mat-error>
+            <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
+              Please enter a valid email
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
+            <mat-icon matPrefix>lock_outline</mat-icon>
+            <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword" tabindex="-1">
+              <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+              Password is required
+            </mat-error>
+            <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">
+              Password must be at least 6 characters
+            </mat-error>
+          </mat-form-field>
+
+          <div class="form-options">
+            <mat-checkbox class="remember-me">Remember me</mat-checkbox>
+            <a routerLink="/auth/forgot-password" class="forgot-link">Forgot password?</a>
+          </div>
+
+          <button mat-raised-button color="primary" type="submit" class="login-btn" [disabled]="!loginForm.valid || loading">
+            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+            <span *ngIf="!loading">LOGIN</span>
           </button>
-          <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
-            Password is required
-          </mat-error>
-          <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">
-            Password must be at least 6 characters
-          </mat-error>
-        </mat-form-field>
 
-        <button mat-raised-button color="primary" type="submit" [disabled]="!loginForm.valid || loading">
-          <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
-          <span *ngIf="!loading">Login</span>
-        </button>
-      </form>
+          <div class="register-link">
+            <p>Don't have an account? <a routerLink="/auth/register">Register now</a></p>
+          </div>
 
-      <div class="auth-footer">
-        <p>Don't have an account? <a routerLink="/auth/register">Register here</a></p>
+          <div class="divider-container">
+            <mat-divider></mat-divider>
+            <span class="divider-text">Or login with</span>
+            <mat-divider></mat-divider>
+          </div>
+
+          <div class="social-login">
+            <button type="button" mat-raised-button class="social-btn google-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48">
+                <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+                <path fill="#FF3D00" d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+                <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+                <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+              </svg>
+              <span>Login with Google</span>
+            </button>
+          </div>
+        </form>
       </div>
+    </div>
 
-      <mat-divider></mat-divider>
-
-      <div class="demo-credentials">
-        <p><strong>Demo Credentials:</strong></p>
-        <p><small>User: user&#64;test.com / User&#64;123</small></p>
-        <p><small>Admin: admin&#64;quickfix.com / Admin&#64;123</small></p>
+    <!-- Right Side - Professional Image -->
+    <div class="auth-image-section">
+      <div class="background-image"></div>
+      <div class="image-overlay">
+        <div class="image-content">
+          <div class="icon-wrapper">
+            <mat-icon class="large-icon">home_repair_service</mat-icon>
+          </div>
+          <h2>Professional Home Services</h2>
+          <p>Connect with trusted service providers for all your home maintenance needs</p>
+          <div class="features">
+            <div class="feature-item">
+              <mat-icon>verified</mat-icon>
+              <span>Verified Professionals</span>
+            </div>
+            <div class="feature-item">
+              <mat-icon>schedule</mat-icon>
+              <span>24/7 Service</span>
+            </div>
+            <div class="feature-item">
+              <mat-icon>star</mat-icon>
+              <span>Top Rated</span>
+            </div>
+          </div>
+        </div>
       </div>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
 </div>

@@ -21,6 +21,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 // Shared Components
 import { HeaderComponent } from './components/header/header.component';
@@ -45,7 +46,8 @@ const MATERIAL_MODULES = [
   MatBadgeModule,
   MatDividerModule,
   MatDialogModule,
-  MatExpansionModule
+  MatExpansionModule,
+  MatCheckboxModule
 ];
 
 const COMPONENTS = [
