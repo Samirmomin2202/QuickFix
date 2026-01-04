@@ -5,7 +5,9 @@ import {
   login,
   getMe,
   updateDetails,
-  updatePassword
+  updatePassword,
+  sendOTP,
+  verifyOTPAndRegister
 } from '../controllers/authController';
 import { protect } from '../middleware/auth';
 import validate from '../middleware/validate';
@@ -21,12 +23,28 @@ const registerValidation = [
   validate
 ];
 
+const sendOTPValidation = [
+  body('email').isEmail().withMessage('Please provide a valid email'),
+  validate
+];
+
+const verifyOTPValidation = [
+  body('name').trim().notEmpty().withMessage('Name is required'),
+  body('email').isEmail().withMessage('Please provide a valid email'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('phone').matches(/^[0-9]{10}$/).withMessage('Please provide a valid 10-digit phone number'),
+  body('otp').isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits'),
+  validate
+];
+
 const loginValidation = [
   body('email').isEmail().withMessage('Please provide a valid email'),
   body('password').notEmpty().withMessage('Password is required'),
   validate
 ];
 
+router.post('/send-otp', sendOTPValidation, sendOTP);
+router.post('/verify-otp', verifyOTPValidation, verifyOTPAndRegister);
 router.post('/register', registerValidation, register);
 router.post('/login', loginValidation, login);
 router.get('/me', protect, getMe);

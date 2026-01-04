@@ -1,10 +1,141 @@
 import { Response, NextFunction } from 'express';
 import asyncHandler from 'express-async-handler';
 import User from '../models/User';
+import Profile from '../models/Profile';
 import ErrorResponse from '../utils/errorResponse';
 import { AuthRequest } from '../types';
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
-// @desc    Register user
+// @desc    Send OTP for registration
+// @route   POST /api/auth/send-otp
+// @access  Public
+export const sendOTP = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
+  const { email, name, phone, password, role } = req.body;
+
+  if (!email) {
+    return next(new ErrorResponse('Please provide an email', 400));
+  }
+
+  // Check if user already exists and is verified
+  let user = await User.findOne({ email }).select('+verificationOTP +verificationOTPExpire');
+  if (user && user.isVerified) {
+    return next(new ErrorResponse('Email already registered', 400));
+  }
+
+  // Generate 6-digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  
+  // Hash OTP
+  const hashedOTP = crypto.createHash('sha256').update(otp).digest('hex');
+  
+  // Set OTP expiry (10 minutes)
+  const otpExpire = new Date(Date.now() + 10 * 60 * 1000);
+
+  // Create or update user with temporary data
+  if (user && !user.isVerified) {
+    // Update existing unverified user
+    user.name = name || user.name;
+    user.phone = phone || user.phone;
+    if (password) user.password = password;
+    user.role = role || user.role || 'user';
+    user.verificationOTP = hashedOTP;
+    user.verificationOTPExpire = otpExpire;
+    await user.save();
+  } else {
+    // Create temporary unverified user
+    user = await User.create({
+      name: name || 'Temporary User',
+      email,
+      password: password || 'temp123456',
+      phone: phone || '0000000000',
+      role: role || 'user',
+      isVerified: false,
+      verificationOTP: hashedOTP,
+      verificationOTPExpire: otpExpire
+    });
+  }
+
+  // Send OTP via email
+  try {
+    await sendOTPEmail(email, otp);
+    
+    res.status(200).json({
+      success: true,
+      message: 'OTP sent to your email',
+      otpExpire: otpExpire
+    });
+  } catch (error) {
+    // Clean up if email fails
+    if (user && !user.isVerified) {
+      user.verificationOTP = undefined;
+      user.verificationOTPExpire = undefined;
+      await user.save();
+    }
+    return next(new ErrorResponse('Email could not be sent', 500));
+  }
+});
+
+// @desc    Verify OTP and complete registration
+// @route   POST /api/auth/verify-otp
+// @access  Public
+export const verifyOTPAndRegister = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
+  const { name, email, password, phone, role, otp } = req.body;
+
+  if (!otp) {
+    return next(new ErrorResponse('Please provide OTP', 400));
+  }
+
+  // Find user by email with OTP fields
+  const user = await User.findOne({ email }).select('+verificationOTP +verificationOTPExpire +password');
+
+  if (!user) {
+    return next(new ErrorResponse('No registration found. Please request OTP first.', 400));
+  }
+
+  if (user.isVerified) {
+    return next(new ErrorResponse('Email already registered', 400));
+  }
+
+  if (!user.verificationOTP || !user.verificationOTPExpire) {
+    return next(new ErrorResponse('No OTP found. Please request a new one.', 400));
+  }
+
+  // Check if OTP expired
+  if (new Date() > user.verificationOTPExpire) {
+    return next(new ErrorResponse('OTP has expired. Please request a new one.', 400));
+  }
+
+  // Hash the provided OTP and compare
+  const hashedOTP = crypto.createHash('sha256').update(otp).digest('hex');
+
+  if (hashedOTP !== user.verificationOTP) {
+    return next(new ErrorResponse('Invalid OTP', 400));
+  }
+
+  // OTP is valid - update user with final details
+  user.name = name;
+  user.phone = phone;
+  user.password = password;
+  user.role = role || 'user';
+  user.isVerified = true;
+  user.verificationOTP = undefined;
+  user.verificationOTPExpire = undefined;
+  await user.save();
+
+  // Create profile automatically
+  await Profile.create({
+    user: user._id,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    profileImage: 'default-avatar.png'
+  });
+
+  sendTokenResponse(user, 201, res);
+});
+
+// @desc    Register user (old method - keeping for compatibility)
 // @route   POST /api/auth/register
 // @access  Public
 export const register = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -16,7 +147,8 @@ export const register = asyncHandler(async (req: AuthRequest, res: Response, nex
     email,
     password,
     phone,
-    role: role || 'user'
+    role: role || 'user',
+    isVerified: true // Auto-verify for direct registration
   });
 
   sendTokenResponse(user, 201, res);
@@ -104,6 +236,39 @@ export const updatePassword = asyncHandler(async (req: AuthRequest, res: Respons
 
   sendTokenResponse(user!, 200, res);
 });
+
+// Helper to send OTP email
+const sendOTPEmail = async (email: string, otp: string) => {
+  // Create transporter
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER || 'your-email@gmail.com',
+      pass: process.env.EMAIL_PASSWORD || 'your-app-password'
+    }
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER || 'QuickFix <noreply@quickfix.com>',
+    to: email,
+    subject: 'QuickFix - Email Verification OTP',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #6e45e2;">QuickFix Email Verification</h2>
+        <p>Hello,</p>
+        <p>Thank you for registering with QuickFix. Your OTP for email verification is:</p>
+        <div style="background: #f5f5f5; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; color: #6e45e2; letter-spacing: 5px; margin: 20px 0;">
+          ${otp}
+        </div>
+        <p>This OTP will expire in 10 minutes.</p>
+        <p>If you didn't request this, please ignore this email.</p>
+        <p>Best regards,<br>QuickFix Team</p>
+      </div>
+    `
+  };
+
+  await transporter.sendMail(mailOptions);
+};
 
 // Helper to get token from model, create cookie and send response
 const sendTokenResponse = (user: any, statusCode: number, res: Response) => {

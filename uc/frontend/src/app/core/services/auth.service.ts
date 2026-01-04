@@ -41,6 +41,17 @@ export class AuthService {
       );
   }
 
+  sendOTP(registrationData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/send-otp`, registrationData);
+  }
+
+  verifyOTPAndRegister(data: any): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/verify-otp`, data)
+      .pipe(
+        tap(response => this.handleAuthSuccess(response))
+      );
+  }
+
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials)
       .pipe(

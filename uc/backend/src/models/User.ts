@@ -47,13 +47,21 @@ const UserSchema = new Schema<IUser>({
       default: 'India'
     }
   },
-  profileImage: {
-    type: String,
-    default: 'default-avatar.png'
-  },
   isActive: {
     type: Boolean,
     default: true
+  },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+  verificationOTP: {
+    type: String,
+    select: false
+  },
+  verificationOTPExpire: {
+    type: Date,
+    select: false
   }
 }, {
   timestamps: true

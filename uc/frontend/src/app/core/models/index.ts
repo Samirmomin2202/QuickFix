@@ -91,7 +91,33 @@ export interface Review {
   createdAt: Date;
   updatedAt: Date;
 }
-
+export interface Profile {
+  _id: string;
+  user: string | User;
+  name: string;
+  email: string;
+  phone: string;
+  gender?: 'male' | 'female' | 'other' | 'prefer-not-to-say';
+  dateOfBirth?: string;
+  age?: number;
+  profileImage: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+    fullAddress?: string;
+    coordinates?: {
+      lat?: number;
+      lng?: number;
+    };
+  };
+  bio?: string;
+  occupation?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 // API Response interfaces
 export interface ApiResponse<T> {
   success: boolean;

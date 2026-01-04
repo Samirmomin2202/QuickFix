@@ -16,10 +16,41 @@ export interface IUser {
   };
   profileImage?: string;
   isActive: boolean;
+  isVerified?: boolean;
+  verificationOTP?: string;
+  verificationOTPExpire?: Date;
   createdAt: Date;
   updatedAt: Date;
   matchPassword(enteredPassword: string): Promise<boolean>;
   getSignedJwtToken(): string;
+}
+
+export interface IProfile {
+  _id: string;
+  user: string | IUser;
+  name: string;
+  email: string;
+  phone: string;
+  gender?: 'male' | 'female' | 'other' | 'prefer-not-to-say';
+  dateOfBirth?: Date;
+  age?: number;
+  profileImage: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+    fullAddress?: string;
+    coordinates?: {
+      lat?: number;
+      lng?: number;
+    };
+  };
+  bio?: string;
+  occupation?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ICategory {

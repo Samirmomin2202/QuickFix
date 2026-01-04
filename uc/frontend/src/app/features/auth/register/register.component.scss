@@ -282,12 +282,22 @@
                 border-width: 1px !important;
               }
 
+              // Fix the notch gap when label floats
+              .mdc-notched-outline__notch {
+                border-top: 1px solid #d1d5db !important;
+              }
+
               &.mat-focused {
                 .mdc-notched-outline__leading,
                 .mdc-notched-outline__trailing,
                 .mdc-notched-outline__notch {
                   border-color: #64B5F6 !important;
                   border-width: 2px !important;
+                }
+                
+                // Keep the top border solid when focused
+                .mdc-notched-outline__notch {
+                  border-top: 2px solid #64B5F6 !important;
                 }
               }
 
@@ -296,6 +306,11 @@
                 .mdc-notched-outline__trailing,
                 .mdc-notched-outline__notch {
                   border-color: #9ca3af !important;
+                }
+                
+                // Keep top border on hover too
+                .mdc-notched-outline__notch {
+                  border-top: 1px solid #9ca3af !important;
                 }
               }
 
@@ -366,16 +381,19 @@
                 font-size: 14px;
                 font-weight: 500;
                 color: #6b7280;
+                left: 40px !important;
                 top: 50% !important;
                 transform: translateY(-50%);
               }
 
               &.mat-focused .mdc-floating-label,
-              .mdc-floating-label--float-above {
-                opacity: 0;
-                visibility: hidden;
+              & .mdc-floating-label--float-above {
                 font-size: 12px;
-                transform: translateY(-106%) !important;
+                left: 8px !important;
+                top: 0 !important;
+                transform: translateY(-50%) !important;
+                background-color: white;
+                padding: 0 4px;
               }
             }
           }
@@ -582,7 +600,186 @@
   }
 }
 
+// OTP Dialog Styles
+.otp-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease;
+
+  .otp-dialog {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+
+    .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      color: #666;
+    }
+
+    .otp-content {
+      text-align: center;
+
+      .otp-icon {
+        margin-bottom: 24px;
+
+        mat-icon {
+          font-size: 64px;
+          width: 64px;
+          height: 64px;
+          color: #64B5F6;
+        }
+      }
+
+      h2 {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0 0 16px 0;
+      }
+
+      .otp-message {
+        font-size: 15px;
+        color: #6b7280;
+        margin-bottom: 32px;
+        line-height: 1.6;
+
+        strong {
+          color: #1f2937;
+          font-weight: 600;
+        }
+      }
+
+      form {
+        .otp-input {
+          width: 100%;
+          margin-bottom: 16px;
+
+          ::ng-deep {
+            .mat-mdc-form-field-infix input {
+              text-align: center;
+              font-size: 24px;
+              font-weight: 600;
+              letter-spacing: 8px;
+            }
+          }
+        }
+
+        .otp-timer {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          margin-bottom: 24px;
+          color: #64B5F6;
+          font-size: 14px;
+          font-weight: 500;
+
+          mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+        }
+
+        .otp-expired {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          margin-bottom: 24px;
+          color: #ef4444;
+          font-size: 14px;
+          font-weight: 500;
+
+          mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+        }
+
+        .verify-btn {
+          width: 100%;
+          height: 48px;
+          font-size: 16px;
+          font-weight: 600;
+          border-radius: 8px;
+        }
+      }
+
+      .resend-section {
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid #e5e7eb;
+
+        p {
+          font-size: 14px;
+          color: #6b7280;
+          margin: 0 0 12px 0;
+        }
+
+        button {
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 @media (max-width: 600px) {
+  .otp-overlay {
+    .otp-dialog {
+      padding: 32px 24px;
+      width: 95%;
+
+      .otp-content {
+        h2 {
+          font-size: 24px;
+        }
+
+        .otp-message {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
   .auth-container {
     .auth-wrapper {
       .auth-image-section {
