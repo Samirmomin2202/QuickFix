@@ -53,6 +53,39 @@ export interface IProfile {
   updatedAt: Date;
 }
 
+export interface IProviderProfile {
+  _id: string;
+  user: string | IUser;
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  email: string;
+  phone: string;
+  gender: 'male' | 'female' | 'other' | 'prefer-not-to-say';
+  profilePicture: string;
+  legalDocumentType: 'aadhar' | 'pan' | 'passport' | 'driving-license' | 'voter-id';
+  legalDocumentNumber: string;
+  professionalType: string;
+  services: string[] | IService[];
+  isVerified: boolean;
+  verificationStatus: 'pending' | 'verified' | 'rejected';
+  verificationNotes?: string;
+  rating: number;
+  completedJobs: number;
+  availability: boolean;
+  bio?: string;
+  experience?: number;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface ICategory {
   _id: string;
   name: string;

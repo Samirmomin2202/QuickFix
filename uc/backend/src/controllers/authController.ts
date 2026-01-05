@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express';
 import asyncHandler from 'express-async-handler';
 import User from '../models/User';
 import Profile from '../models/Profile';
+import ProviderProfile from '../models/ProviderProfile';
 import ErrorResponse from '../utils/errorResponse';
 import { AuthRequest } from '../types';
 import crypto from 'crypto';
@@ -235,6 +236,161 @@ export const updatePassword = asyncHandler(async (req: AuthRequest, res: Respons
   await user!.save();
 
   sendTokenResponse(user!, 200, res);
+});
+
+// @desc    Send OTP for provider registration
+// @route   POST /api/auth/provider/send-otp
+// @access  Public
+export const sendProviderOTP = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return next(new ErrorResponse('Please provide an email', 400));
+  }
+
+  // Check if user already exists and is verified
+  let user = await User.findOne({ email }).select('+verificationOTP +verificationOTPExpire');
+  if (user && user.isVerified) {
+    return next(new ErrorResponse('Email already registered', 400));
+  }
+
+  // Generate 6-digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  
+  // Hash OTP
+  const hashedOTP = crypto.createHash('sha256').update(otp).digest('hex');
+  
+  // Set OTP expiry (10 minutes)
+  const otpExpire = new Date(Date.now() + 10 * 60 * 1000);
+
+  // Create or update user with temporary data
+  if (user && !user.isVerified) {
+    user.verificationOTP = hashedOTP;
+    user.verificationOTPExpire = otpExpire;
+    user.role = 'service-provider';
+    await user.save();
+  } else {
+    // Create temporary unverified user
+    user = await User.create({
+      name: 'Temp Provider',
+      email,
+      password: 'temp123456',
+      phone: '0000000000',
+      role: 'service-provider',
+      isVerified: false,
+      verificationOTP: hashedOTP,
+      verificationOTPExpire: otpExpire
+    });
+  }
+
+  // Send OTP via email
+  try {
+    await sendOTPEmail(email, otp);
+    
+    res.status(200).json({
+      success: true,
+      message: 'OTP sent to your email',
+      otpExpire: otpExpire
+    });
+  } catch (error) {
+    // Clean up if email fails
+    if (user && !user.isVerified) {
+      user.verificationOTP = undefined;
+      user.verificationOTPExpire = undefined;
+      await user.save();
+    }
+    return next(new ErrorResponse('Email could not be sent', 500));
+  }
+});
+
+// @desc    Verify OTP and register service provider
+// @route   POST /api/auth/provider/register
+// @access  Public
+export const registerProvider = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
+  const { 
+    firstName, 
+    lastName, 
+    middleName,
+    email, 
+    password, 
+    phone, 
+    gender,
+    legalDocumentType,
+    legalDocumentNumber,
+    professionalType,
+    services,
+    profilePicture,
+    otp 
+  } = req.body;
+
+  if (!otp) {
+    return next(new ErrorResponse('Please provide OTP', 400));
+  }
+
+  // Find user by email with OTP fields
+  const user = await User.findOne({ email }).select('+verificationOTP +verificationOTPExpire +password');
+
+  if (!user) {
+    return next(new ErrorResponse('No registration found. Please request OTP first.', 400));
+  }
+
+  if (user.isVerified) {
+    return next(new ErrorResponse('Email already registered', 400));
+  }
+
+  if (!user.verificationOTP || !user.verificationOTPExpire) {
+    return next(new ErrorResponse('No OTP found. Please request a new one.', 400));
+  }
+
+  // Check if OTP expired
+  if (new Date() > user.verificationOTPExpire) {
+    return next(new ErrorResponse('OTP has expired. Please request a new one.', 400));
+  }
+
+  // Hash the provided OTP and compare
+  const hashedOTP = crypto.createHash('sha256').update(otp).digest('hex');
+
+  if (hashedOTP !== user.verificationOTP) {
+    return next(new ErrorResponse('Invalid OTP', 400));
+  }
+
+  // Validate required provider fields
+  if (!firstName || !lastName || !gender || !legalDocumentType || !legalDocumentNumber || !professionalType) {
+    return next(new ErrorResponse('Please provide all required provider information', 400));
+  }
+
+  if (!services || !Array.isArray(services) || services.length === 0) {
+    return next(new ErrorResponse('Please select at least one service', 400));
+  }
+
+  // OTP is valid - update user with final details
+  user.name = `${firstName} ${middleName ? middleName + ' ' : ''}${lastName}`;
+  user.phone = phone;
+  user.password = password;
+  user.role = 'service-provider';
+  user.isVerified = true;
+  user.verificationOTP = undefined;
+  user.verificationOTPExpire = undefined;
+  await user.save();
+
+  // Create provider profile
+  await ProviderProfile.create({
+    user: user._id,
+    firstName,
+    lastName,
+    middleName,
+    email,
+    phone,
+    gender,
+    legalDocumentType,
+    legalDocumentNumber,
+    professionalType,
+    services,
+    profilePicture: profilePicture || 'default-provider-avatar.png',
+    verificationStatus: 'pending'
+  });
+
+  sendTokenResponse(user, 201, res);
 });
 
 // Helper to send OTP email
