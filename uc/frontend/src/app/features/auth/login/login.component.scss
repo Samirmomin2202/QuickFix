@@ -160,12 +160,22 @@
                 border-width: 1px !important;
               }
 
+              // Fix for border gap issue - add solid top border
+              .mdc-notched-outline__notch {
+                border-top: 1px solid #d1d5db !important;
+              }
+
               &.mat-focused {
                 .mdc-notched-outline__leading,
                 .mdc-notched-outline__trailing,
                 .mdc-notched-outline__notch {
                   border-color: #64B5F6 !important;
                   border-width: 2px !important;
+                }
+
+                // Fix for border gap on focus
+                .mdc-notched-outline__notch {
+                  border-top: 2px solid #64B5F6 !important;
                 }
               }
 
@@ -232,6 +242,13 @@
 
               &.mat-focused .mat-mdc-form-field-icon-prefix > .mat-icon {
                 color: #64B5F6;
+              }
+
+              // Fix label positioning over notch
+              .mdc-floating-label {
+                background-color: white;
+                padding: 0 4px;
+                z-index: 1;
               }
 
               .mat-mdc-form-field-subscript-wrapper {

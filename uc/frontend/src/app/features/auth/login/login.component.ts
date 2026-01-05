@@ -43,13 +43,12 @@ export class LoginComponent implements OnInit {
         next: (response) => {
           this.snackBar.open('Login successful!', 'Close', { duration: 3000 });
           
-          // Get current user and redirect based on role
-          const user = this.authService.getCurrentUser();
-          if (user) {
-            if (user.role === 'admin') {
+          // Redirect based on user role from response
+          if (response.user) {
+            if (response.user.role === 'admin') {
               this.router.navigate(['/admin']);
-            } else if (user.role === 'service-provider') {
-              this.router.navigate(['/provider/dashboard']);
+            } else if (response.user.role === 'service-provider') {
+              this.router.navigate(['/provider']);
             } else {
               this.router.navigate([this.returnUrl]);
             }
