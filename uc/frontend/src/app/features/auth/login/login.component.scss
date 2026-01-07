@@ -338,7 +338,7 @@
             p {
               font-size: 13px;
               color: #666;
-              margin: 0;
+              margin: 6px 0;
 
               a {
                 color: #64B5F6;
@@ -349,6 +349,14 @@
                 &:hover {
                   color: #42A5F5;
                   text-decoration: underline;
+                }
+
+                &.provider-link {
+                  color: #667eea;
+                  
+                  &:hover {
+                    color: #764ba2;
+                  }
                 }
               }
             }

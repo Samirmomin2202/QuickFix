@@ -52,6 +52,18 @@ export class AuthService {
       );
   }
 
+  // Provider registration methods
+  sendProviderOTP(data: { email: string }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/provider/send-otp`, data);
+  }
+
+  registerProvider(data: any): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/provider/register`, data)
+      .pipe(
+        tap(response => this.handleAuthSuccess(response))
+      );
+  }
+
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials)
       .pipe(

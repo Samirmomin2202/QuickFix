@@ -6,31 +6,44 @@ import { ManageCategoriesComponent } from './manage-categories/manage-categories
 import { ManageUsersComponent } from './manage-users/manage-users.component';
 import { ViewReportsComponent } from './view-reports/view-reports.component';
 import { ManageServicesComponent } from './manage-services/manage-services.component';
+import { RoleGuard } from '@core/guards/role.guard';
 
 const routes: Routes = [
   {
     path: '',
-    component: AdminComponent
+    component: AdminComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['admin'] }
   },
   {
     path: 'add-service',
-    component: AddServiceComponent
+    component: AddServiceComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['admin'] }
   },
   {
     path: 'manage-services',
-    component: ManageServicesComponent
+    component: ManageServicesComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['admin'] }
   },
   {
     path: 'manage-categories',
-    component: ManageCategoriesComponent
+    component: ManageCategoriesComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['admin'] }
   },
   {
     path: 'manage-users',
-    component: ManageUsersComponent
+    component: ManageUsersComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['admin'] }
   },
   {
     path: 'view-reports',
-    component: ViewReportsComponent
+    component: ViewReportsComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['admin'] }
   }
 ];
 

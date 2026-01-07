@@ -1,0 +1,362 @@
+<div class="auth-container">
+  <!-- Back Button -->
+  <button mat-icon-button class="back-button" (click)="goBack()">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+
+  <div class="auth-wrapper">
+    <!-- Left Side - Professional Image -->
+    <div class="auth-image-section">
+      <div class="background-image"></div>
+      <div class="image-overlay">
+        <div class="image-content">
+          <div class="icon-wrapper">
+            <mat-icon class="large-icon">verified_user</mat-icon>
+          </div>
+          <h2>Become a Service Provider</h2>
+          <p>Join our network of trusted professionals and grow your business with QuickFix</p>
+          <div class="features">
+            <div class="feature-item">
+              <mat-icon>work</mat-icon>
+              <span>Get More Jobs</span>
+            </div>
+            <div class="feature-item">
+              <mat-icon>payments</mat-icon>
+              <span>Earn More</span>
+            </div>
+            <div class="feature-item">
+              <mat-icon>trending_up</mat-icon>
+              <span>Grow Your Business</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side - Register Form -->
+    <div class="auth-form-section">
+      <div class="form-container">
+        <div class="login-header">
+          <h1 class="login-title">Provider Registration</h1>
+          <p class="login-subtitle">Register as a professional service provider</p>
+        </div>
+
+        <!-- Stepper Indicator -->
+        <div class="stepper-container">
+          <div class="stepper-wrapper">
+            <div *ngFor="let step of steps; let i = index" class="step-item" [class.active]="currentStep === step.number" [class.completed]="currentStep > step.number">
+              <div class="step-circle" (click)="goToStep(step.number)">
+                <mat-icon *ngIf="currentStep > step.number">check</mat-icon>
+                <span *ngIf="currentStep <= step.number">{{ step.number }}</span>
+              </div>
+              <div class="step-label">{{ step.title }}</div>
+              <div *ngIf="i < steps.length - 1" class="step-line"></div>
+            </div>
+          </div>
+        </div>
+
+        <form [formGroup]="providerForm" (ngSubmit)="onSubmit()">
+          <!-- Step 1: Personal Information -->
+          <div class="form-step" *ngIf="currentStep === 1">
+            <div class="step-header">
+              <mat-icon>person</mat-icon>
+              <h3>Personal Information</h3>
+            </div>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field-half">
+                <mat-label>First Name</mat-label>
+                <input matInput formControlName="firstName">
+                <mat-icon matPrefix>person</mat-icon>
+                <mat-error *ngIf="providerForm.get('firstName')?.hasError('required')">
+                  First name is required
+                </mat-error>
+                <mat-error *ngIf="providerForm.get('firstName')?.hasError('minlength')">
+                  Minimum 2 characters required
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-field-half">
+                <mat-label>Middle Name (Optional)</mat-label>
+                <input matInput formControlName="middleName">
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Last Name</mat-label>
+              <input matInput formControlName="lastName">
+              <mat-icon matPrefix>person_outline</mat-icon>
+              <mat-error *ngIf="providerForm.get('lastName')?.hasError('required')">
+                Last name is required
+              </mat-error>
+              <mat-error *ngIf="providerForm.get('lastName')?.hasError('minlength')">
+                Minimum 2 characters required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Gender</mat-label>
+              <mat-select formControlName="gender">
+                <mat-option *ngFor="let option of genderOptions" [value]="option.value">
+                  {{ option.label }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>wc</mat-icon>
+              <mat-error *ngIf="providerForm.get('gender')?.hasError('required')">
+                Gender is required
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Profile Picture Upload -->
+            <div class="file-upload-section">
+              <label class="file-upload-label">Profile Picture (Optional)</label>
+              <div class="file-upload-wrapper">
+                <input 
+                  type="file" 
+                  #fileInput 
+                  (change)="onFileSelected($event)" 
+                  accept="image/*"
+                  style="display: none;">
+                <button 
+                  mat-raised-button 
+                  type="button" 
+                  (click)="fileInput.click()"
+                  class="upload-btn">
+                  <mat-icon>cloud_upload</mat-icon>
+                  Choose Picture
+                </button>
+                <div *ngIf="profilePicturePreview" class="image-preview">
+                  <img [src]="profilePicturePreview" alt="Profile Preview">
+                </div>
+              </div>
+            </div>
+
+            <div class="step-actions">
+              <button mat-raised-button color="primary" type="button" class="next-btn" (click)="nextStep()">
+                NEXT
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 2: Contact Information -->
+          <div class="form-step" *ngIf="currentStep === 2">
+            <div class="step-header">
+              <mat-icon>contact_mail</mat-icon>
+              <h3>Contact Information</h3>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input matInput type="email" formControlName="email">
+              <mat-icon matPrefix>email</mat-icon>
+              <mat-hint>Use a valid email address for account verification</mat-hint>
+              <mat-error *ngIf="providerForm.get('email')?.hasError('required')">
+                Email is required
+              </mat-error>
+              <mat-error *ngIf="providerForm.get('email')?.hasError('email')">
+                Please enter a valid email
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Phone Number</mat-label>
+              <input matInput formControlName="phone">
+              <mat-icon matPrefix>phone</mat-icon>
+              <mat-hint>Enter 10-digit phone number</mat-hint>
+              <mat-error *ngIf="providerForm.get('phone')?.hasError('required')">
+                Phone number is required
+              </mat-error>
+              <mat-error *ngIf="providerForm.get('phone')?.hasError('pattern')">
+                Please enter a valid 10-digit phone number
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Password</mat-label>
+              <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
+              <mat-icon matPrefix>lock</mat-icon>
+              <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword" tabindex="-1">
+                <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              <mat-hint>Minimum 6 characters</mat-hint>
+              <mat-error *ngIf="providerForm.get('password')?.hasError('required')">
+                Password is required
+              </mat-error>
+              <mat-error *ngIf="providerForm.get('password')?.hasError('minlength')">
+                Password must be at least 6 characters
+              </mat-error>
+            </mat-form-field>
+
+            <div class="step-actions">
+              <button mat-button type="button" class="back-btn" (click)="previousStep()">
+                <mat-icon>arrow_back</mat-icon>
+                BACK
+              </button>
+              <button mat-raised-button color="primary" type="button" class="next-btn" (click)="nextStep()">
+                NEXT
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 3: Legal Documentation -->
+          <div class="form-step" *ngIf="currentStep === 3">
+            <div class="step-header">
+              <mat-icon>badge</mat-icon>
+              <h3>Legal Documentation</h3>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Legal Document Type</mat-label>
+              <mat-select formControlName="legalDocumentType">
+                <mat-option *ngFor="let doc of legalDocumentTypes" [value]="doc.value">
+                  {{ doc.label }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>badge</mat-icon>
+              <mat-error *ngIf="providerForm.get('legalDocumentType')?.hasError('required')">
+                Document type is required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Document Number</mat-label>
+              <input matInput formControlName="legalDocumentNumber">
+              <mat-icon matPrefix>credit_card</mat-icon>
+              <mat-error *ngIf="providerForm.get('legalDocumentNumber')?.hasError('required')">
+                Document number is required
+              </mat-error>
+            </mat-form-field>
+
+            <div class="step-actions">
+              <button mat-button type="button" class="back-btn" (click)="previousStep()">
+                <mat-icon>arrow_back</mat-icon>
+                BACK
+              </button>
+              <button mat-raised-button color="primary" type="button" class="next-btn" (click)="nextStep()">
+                NEXT
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 4: Professional Information -->
+          <div class="form-step" *ngIf="currentStep === 4">
+            <div class="step-header">
+              <mat-icon>work</mat-icon>
+              <h3>Professional Information</h3>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Professional Type</mat-label>
+              <input matInput formControlName="professionalType">
+              <mat-icon matPrefix>work</mat-icon>
+              <mat-hint>e.g., Electrician, Plumber, Carpenter</mat-hint>
+              <mat-error *ngIf="providerForm.get('professionalType')?.hasError('required')">
+                Professional type is required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Services Offered</mat-label>
+              <mat-select formControlName="services" multiple (selectionChange)="onServiceSelectionChange($event)">
+                <mat-option *ngFor="let service of availableServices" [value]="service._id">
+                  {{ service.name }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>list</mat-icon>
+              <mat-hint>Select one or more services you provide</mat-hint>
+              <mat-error *ngIf="providerForm.get('services')?.hasError('required')">
+                Please select at least one service
+              </mat-error>
+            </mat-form-field>
+
+            <div class="selected-services" *ngIf="selectedServices.length > 0">
+              <p class="services-label">Selected Services:</p>
+              <mat-chip-set>
+                <mat-chip *ngFor="let serviceId of selectedServices">
+                  {{ getServiceName(serviceId) }}
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+
+            <div class="step-actions">
+              <button mat-button type="button" class="back-btn" (click)="previousStep()">
+                <mat-icon>arrow_back</mat-icon>
+                BACK
+              </button>
+              <button mat-raised-button color="primary" type="submit" class="submit-btn" [disabled]="!providerForm.valid || loading">
+                <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+                <span *ngIf="!loading">REGISTER AS PROVIDER</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="register-link">
+            <p>Already have an account? <a routerLink="/auth/login">Login here</a></p>
+            <p>Want to register as a customer? <a routerLink="/auth/register">Customer Registration</a></p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- OTP Verification Dialog -->
+  <div class="otp-overlay" *ngIf="showOTPDialog">
+    <div class="otp-dialog">
+      <button mat-icon-button class="close-btn" (click)="closeOTPDialog()">
+        <mat-icon>close</mat-icon>
+      </button>
+      
+      <div class="otp-content">
+        <div class="otp-icon">
+          <mat-icon>mail_outline</mat-icon>
+        </div>
+        
+        <h2>Verify Your Email</h2>
+        <p class="otp-message">
+          We've sent a 6-digit verification code to<br>
+          <strong>{{ registrationData?.email }}</strong>
+        </p>
+
+        <form [formGroup]="otpForm" (ngSubmit)="verifyOTP()">
+          <mat-form-field appearance="outline" class="otp-field">
+            <mat-label>Enter OTP</mat-label>
+            <input matInput formControlName="otp" maxlength="6" placeholder="000000">
+            <mat-error *ngIf="otpForm.get('otp')?.hasError('required')">
+              OTP is required
+            </mat-error>
+            <mat-error *ngIf="otpForm.get('otp')?.hasError('pattern')">
+              OTP must be 6 digits
+            </mat-error>
+          </mat-form-field>
+
+          <div class="otp-timer" *ngIf="countdown > 0">
+            <mat-icon>timer</mat-icon>
+            <span>OTP expires in {{ getCountdownDisplay() }}</span>
+          </div>
+
+          <button 
+            mat-raised-button 
+            color="primary" 
+            type="submit" 
+            class="verify-btn"
+            [disabled]="!otpForm.valid || loading">
+            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+            <span *ngIf="!loading">VERIFY & COMPLETE REGISTRATION</span>
+          </button>
+
+          <button 
+            mat-button 
+            type="button" 
+            class="resend-btn"
+            [disabled]="countdown > 540 || loading"
+            (click)="resendOTP()">
+            Resend OTP
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
