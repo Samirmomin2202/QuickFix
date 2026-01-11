@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ProfileService } from '../../../core/services/profile.service';
 import { Profile } from '../../../core/models';
 import { environment } from '../../../../environments/environment';
@@ -33,7 +34,8 @@ declare const google: any;
     MatIconModule,
     MatCardModule,
     MatSnackBarModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatTooltipModule
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
@@ -53,6 +55,11 @@ export class ProfileComponent implements OnInit {
   map: any = null;
   marker: any = null;
   showMap = false;
+  
+  // JWT Token properties
+  jwtToken: string = '';
+  showToken: boolean = false;
+  tokenCopied: boolean = false;
 
   genderOptions = [
     { value: 'male', label: 'Male' },
@@ -72,6 +79,7 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     this.initializeForm();
     this.loadProfile();
+    this.loadJwtToken();
   }
 
   initializeForm(): void {
@@ -451,5 +459,75 @@ export class ProfileComponent implements OnInit {
     }
     
     return age;
+  }
+
+  // JWT Token Methods
+  loadJwtToken(): void {
+    this.jwtToken = localStorage.getItem('token') || '';
+  }
+
+  toggleTokenVisibility(): void {
+    this.showToken = !this.showToken;
+  }
+
+  getMaskedToken(): string {
+    if (!this.jwtToken) return 'No token available';
+    if (this.showToken) return this.jwtToken;
+    
+    // Show first 20 and last 20 characters
+    if (this.jwtToken.length > 40) {
+      return this.jwtToken.substring(0, 20) + '...' + this.jwtToken.substring(this.jwtToken.length - 20);
+    }
+    return '•'.repeat(this.jwtToken.length);
+  }
+
+  copyToken(): void {
+    if (!this.jwtToken) {
+      this.snackBar.open('No token to copy', 'Close', { duration: 2000 });
+      return;
+    }
+
+    navigator.clipboard.writeText(this.jwtToken).then(() => {
+      this.tokenCopied = true;
+      this.snackBar.open('Token copied to clipboard!', 'Close', {
+        duration: 2000,
+        panelClass: 'success-snackbar'
+      });
+      
+      setTimeout(() => {
+        this.tokenCopied = false;
+      }, 2000);
+    }).catch(err => {
+      this.snackBar.open('Failed to copy token', 'Close', { duration: 2000 });
+    });
+  }
+
+  getTokenExpiry(): string {
+    if (!this.jwtToken) return 'N/A';
+    
+    try {
+      const payload = JSON.parse(atob(this.jwtToken.split('.')[1]));
+      if (payload.exp) {
+        const expiryDate = new Date(payload.exp * 1000);
+        return expiryDate.toLocaleString();
+      }
+    } catch (e) {
+      return 'Invalid token';
+    }
+    return 'N/A';
+  }
+
+  isTokenExpired(): boolean {
+    if (!this.jwtToken) return true;
+    
+    try {
+      const payload = JSON.parse(atob(this.jwtToken.split('.')[1]));
+      if (payload.exp) {
+        return Date.now() >= payload.exp * 1000;
+      }
+    } catch (e) {
+      return true;
+    }
+    return true;
   }
 }

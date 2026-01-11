@@ -22,6 +22,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Shared Components
 import { HeaderComponent } from './components/header/header.component';
@@ -47,7 +49,9 @@ const MATERIAL_MODULES = [
   MatDividerModule,
   MatDialogModule,
   MatExpansionModule,
-  MatCheckboxModule
+  MatCheckboxModule,
+  MatSlideToggleModule,
+  MatTooltipModule
 ];
 
 const COMPONENTS = [

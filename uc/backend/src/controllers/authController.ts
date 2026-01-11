@@ -397,15 +397,20 @@ export const registerProvider = asyncHandler(async (req: AuthRequest, res: Respo
 const sendOTPEmail = async (email: string, otp: string) => {
   // Create transporter
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
     auth: {
-      user: process.env.EMAIL_USER || 'your-email@gmail.com',
-      pass: process.env.EMAIL_PASSWORD || 'your-app-password'
+      user: process.env.SMTP_USER || 'your-email@gmail.com',
+      pass: process.env.SMTP_PASS?.replace(/\s/g, '').replace(/"/g, '') || 'your-app-password' // Remove spaces and quotes from password
+    },
+    tls: {
+      rejectUnauthorized: false // Accept self-signed certificates
     }
   });
 
   const mailOptions = {
-    from: process.env.EMAIL_USER || 'QuickFix <noreply@quickfix.com>',
+    from: process.env.MAIL_FROM || process.env.SMTP_USER || 'QuickFix <noreply@quickfix.com>',
     to: email,
     subject: 'QuickFix - Email Verification OTP',
     html: `

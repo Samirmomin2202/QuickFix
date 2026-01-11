@@ -9,6 +9,15 @@
     </div>
 
     <div class="filter-section">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search Users</mat-label>
+        <input matInput [(ngModel)]="searchTerm" placeholder="Search by name, email, or phone">
+        <mat-icon matPrefix>search</mat-icon>
+        <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="searchTerm = ''">
+          <mat-icon>clear</mat-icon>
+        </button>
+      </mat-form-field>
+      
       <mat-form-field appearance="outline">
         <mat-label>Filter by Role</mat-label>
         <mat-select [(value)]="filterRole">
@@ -18,6 +27,10 @@
           <mat-option value="admin">Administrators</mat-option>
         </mat-select>
       </mat-form-field>
+      
+      <div class="stats">
+        <mat-chip>Total: {{filteredUsers.length}}</mat-chip>
+      </div>
     </div>
 
     <div *ngIf="loading" class="loading-container">
@@ -55,17 +68,160 @@
         </div>
 
         <mat-card-actions>
-          <button mat-button color="primary">
+          <button mat-button color="primary" (click)="viewUserDetails(user)">
             <mat-icon>visibility</mat-icon>
             View Details
           </button>
+          <button mat-button color="accent" (click)="editUser(user)">
+            <mat-icon>edit</mat-icon>
+            Edit
+          </button>
           <button mat-button [color]="user.isActive ? 'warn' : 'primary'" 
-                  (click)="toggleUserStatus(user)">
+                  (click)="toggleUserStatus(user)"
+                  [disabled]="!canChangeUserStatus(user)"
+                  [matTooltip]="!canChangeUserStatus(user) ? 'You cannot deactivate your own account' : (user.isActive ? 'Deactivate user' : 'Activate user')">
             <mat-icon>{{user.isActive ? 'block' : 'check_circle'}}</mat-icon>
             {{user.isActive ? 'Deactivate' : 'Activate'}}
           </button>
+          <button mat-button color="warn" (click)="deleteUser(user)" 
+                  [disabled]="!canDeleteUser(user)"
+                  [matTooltip]="!canDeleteUser(user) ? 'You cannot delete your own account' : 'Delete user'">
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
         </mat-card-actions>
       </mat-card>
+    </div>
+    
+    <div *ngIf="!loading && filteredUsers.length === 0" class="no-users">
+      <mat-icon>people_outline</mat-icon>
+      <h3>No users found</h3>
+      <p>Try adjusting your filters or search criteria</p>
+    </div>
+  </div>
+</div>
+
+<!-- User Details/Edit Modal -->
+<div class="user-modal" *ngIf="showUserDetails && selectedUser">
+  <div class="modal-overlay" (click)="closeUserDetails()"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>{{ isEditing ? 'Edit User' : 'User Details' }}</h2>
+      <button mat-icon-button (click)="closeUserDetails()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div *ngIf="!isEditing" class="user-details-view">
+        <div class="detail-row">
+          <mat-icon>person</mat-icon>
+          <div>
+            <label>Name</label>
+            <p>{{ selectedUser.name }}</p>
+          </div>
+        </div>
+        
+        <div class="detail-row">
+          <mat-icon>email</mat-icon>
+          <div>
+            <label>Email</label>
+            <p>{{ selectedUser.email }}</p>
+          </div>
+        </div>
+        
+        <div class="detail-row">
+          <mat-icon>phone</mat-icon>
+          <div>
+            <label>Phone</label>
+            <p>{{ selectedUser.phone }}</p>
+          </div>
+        </div>
+        
+        <div class="detail-row">
+          <mat-icon>badge</mat-icon>
+          <div>
+            <label>Role</label>
+            <p>
+              <mat-chip [color]="getRoleBadgeColor(selectedUser.role)" selected>
+                {{ selectedUser.role }}
+              </mat-chip>
+            </p>
+          </div>
+        </div>
+        
+        <div class="detail-row">
+          <mat-icon>{{ selectedUser.isActive ? 'check_circle' : 'cancel' }}</mat-icon>
+          <div>
+            <label>Status</label>
+            <p>{{ selectedUser.isActive ? 'Active' : 'Inactive' }}</p>
+          </div>
+        </div>
+        
+        <div class="detail-row">
+          <mat-icon>calendar_today</mat-icon>
+          <div>
+            <label>Joined</label>
+            <p>{{ selectedUser.createdAt | date:'full' }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="isEditing" class="user-edit-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Name</mat-label>
+          <input matInput [(ngModel)]="editUserData.name" required>
+          <mat-icon matPrefix>person</mat-icon>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" [(ngModel)]="editUserData.email" required>
+          <mat-icon matPrefix>email</mat-icon>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Phone</mat-label>
+          <input matInput [(ngModel)]="editUserData.phone" required>
+          <mat-icon matPrefix>phone</mat-icon>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Role</mat-label>
+          <mat-select [(ngModel)]="editUserData.role">
+            <mat-option value="user">User</mat-option>
+            <mat-option value="service-provider">Service Provider</mat-option>
+            <mat-option value="admin">Administrator</mat-option>
+          </mat-select>
+          <mat-icon matPrefix>badge</mat-icon>
+        </mat-form-field>
+        
+        <mat-slide-toggle [(ngModel)]="editUserData.isActive" class="full-width">
+          Active Status
+        </mat-slide-toggle>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <div *ngIf="!isEditing">
+        <button mat-raised-button color="accent" (click)="editUser(selectedUser)">
+          <mat-icon>edit</mat-icon>
+          Edit User
+        </button>
+        <button mat-raised-button color="warn" (click)="deleteUser(selectedUser)" 
+                [disabled]="!canDeleteUser(selectedUser)"
+                [matTooltip]="!canDeleteUser(selectedUser) ? 'You cannot delete your own account' : ''">
+          <mat-icon>delete</mat-icon>
+          Delete User
+        </button>
+      </div>
+      <div *ngIf="isEditing">
+        <button mat-button (click)="closeUserDetails()">Cancel</button>
+        <button mat-raised-button color="primary" (click)="saveUserChanges()">
+          <mat-icon>save</mat-icon>
+          Save Changes
+        </button>
+      </div>
     </div>
   </div>
 </div>

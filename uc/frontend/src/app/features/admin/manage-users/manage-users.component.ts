@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '@core/services/user.service';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 interface UserData {
   _id: string;
@@ -21,14 +23,28 @@ export class ManageUsersComponent implements OnInit {
   users: UserData[] = [];
   loading = true;
   filterRole: string = 'all';
+  searchTerm: string = '';
+  selectedUser: UserData | null = null;
+  showUserDetails = false;
+  isEditing = false;
+  editUserData: any = {};
+  currentUserId: string = '';
 
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
+  ) {}
 
   ngOnInit(): void {
+    // Get current user from localStorage
+    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+    this.currentUserId = currentUser._id || currentUser.id || '';
     this.loadUsers();
   }
 
   loadUsers(): void {
+    this.loading = true;
     this.userService.getUsers().subscribe({
       next: (response: any) => {
         this.users = response.data || [];
@@ -36,16 +52,31 @@ export class ManageUsersComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading users:', error);
+        this.showMessage('Failed to load users', 'error');
         this.loading = false;
       }
     });
   }
 
   get filteredUsers(): UserData[] {
-    if (this.filterRole === 'all') {
-      return this.users;
+    let filtered = this.users;
+    
+    // Filter by role
+    if (this.filterRole !== 'all') {
+      filtered = filtered.filter(u => u.role === this.filterRole);
     }
-    return this.users.filter(u => u.role === this.filterRole);
+    
+    // Filter by search term
+    if (this.searchTerm.trim()) {
+      const search = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(u => 
+        u.name.toLowerCase().includes(search) ||
+        u.email.toLowerCase().includes(search) ||
+        u.phone.includes(search)
+      );
+    }
+    
+    return filtered;
   }
 
   getRoleBadgeColor(role: string): string {
@@ -57,7 +88,108 @@ export class ManageUsersComponent implements OnInit {
     return colors[role] || '';
   }
 
+  viewUserDetails(user: UserData): void {
+    this.selectedUser = user;
+    this.showUserDetails = true;
+    this.isEditing = false;
+  }
+
+  closeUserDetails(): void {
+    this.showUserDetails = false;
+    this.selectedUser = null;
+    this.isEditing = false;
+    this.editUserData = {};
+  }
+
+  editUser(user: UserData): void {
+    this.selectedUser = user;
+    this.editUserData = {
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      isActive: user.isActive
+    };
+    this.isEditing = true;
+    this.showUserDetails = true;
+  }
+
+  saveUserChanges(): void {
+    if (!this.selectedUser) return;
+    
+    this.userService.updateUser(this.selectedUser._id, this.editUserData).subscribe({
+      next: (response) => {
+        this.showMessage('User updated successfully', 'success');
+        this.loadUsers();
+        this.closeUserDetails();
+      },
+      error: (error) => {
+        console.error('Error updating user:', error);
+        this.showMessage('Failed to update user', 'error');
+      }
+    });
+  }
+
+  canDeleteUser(user: UserData): boolean {
+    return user._id !== this.currentUserId;
+  }
+
+  canChangeUserStatus(user: UserData): boolean {
+    return user._id !== this.currentUserId;
+  }
+
   toggleUserStatus(user: UserData): void {
-    alert(`User "${user.name}" status would be changed to ${!user.isActive ? 'Active' : 'Inactive'}`);
+    if (user._id === this.currentUserId) {
+      this.showMessage('You cannot deactivate your own account', 'error');
+      return;
+    }
+
+    const newStatus = !user.isActive;
+    const action = newStatus ? 'activate' : 'deactivate';
+    
+    if (confirm(`Are you sure you want to ${action} ${user.name}?`)) {
+      this.userService.updateUser(user._id, { isActive: newStatus }).subscribe({
+        next: (response) => {
+          this.showMessage(`User ${action}d successfully`, 'success');
+          this.loadUsers();
+        },
+        error: (error) => {
+          console.error('Error updating user status:', error);
+          this.showMessage('Failed to update user status', 'error');
+        }
+      });
+    }
+  }
+
+  deleteUser(user: UserData): void {
+    if (user._id === this.currentUserId) {
+      this.showMessage('You cannot delete your own account', 'error');
+      return;
+    }
+
+    if (confirm(`Are you sure you want to delete ${user.name}? This action cannot be undone.`)) {
+      this.userService.deleteUser(user._id).subscribe({
+        next: (response) => {
+          this.showMessage('User deleted successfully', 'success');
+          this.loadUsers();
+          if (this.selectedUser?._id === user._id) {
+            this.closeUserDetails();
+          }
+        },
+        error: (error) => {
+          console.error('Error deleting user:', error);
+          this.showMessage('Failed to delete user', 'error');
+        }
+      });
+    }
+  }
+
+  showMessage(message: string, type: 'success' | 'error'): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      horizontalPosition: 'end',
+      verticalPosition: 'top',
+      panelClass: type === 'success' ? 'success-snackbar' : 'error-snackbar'
+    });
   }
 }
