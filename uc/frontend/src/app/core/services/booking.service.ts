@@ -37,4 +37,8 @@ export class BookingService {
       body: { cancellationReason: reason }
     });
   }
+
+  deleteBooking(id: string): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/${id}`);
+  }
 }

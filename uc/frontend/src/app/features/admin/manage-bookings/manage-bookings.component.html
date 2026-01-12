@@ -1,0 +1,366 @@
+<div class="manage-bookings">
+  <div class="container">
+    <div class="header">
+      <h1>Manage Bookings</h1>
+      <div class="header-actions">
+        <button mat-icon-button (click)="refreshBookings()" matTooltip="Refresh">
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button mat-stroked-button (click)="exportBookings()">
+          <mat-icon>download</mat-icon>
+          Export
+        </button>
+        <button mat-raised-button color="primary" routerLink="/admin">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Dashboard
+        </button>
+      </div>
+    </div>
+
+    <!-- Revenue Stats -->
+    <div class="revenue-stats">
+      <mat-card class="revenue-card total">
+        <div class="stat-icon">
+          <mat-icon>account_balance_wallet</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Total Revenue (Paid)</div>
+          <div class="stat-value">₹{{totalRevenue.toLocaleString()}}</div>
+        </div>
+      </mat-card>
+      <mat-card class="revenue-card pending">
+        <div class="stat-icon">
+          <mat-icon>hourglass_empty</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Pending Revenue</div>
+          <div class="stat-value">₹{{pendingRevenue.toLocaleString()}}</div>
+        </div>
+      </mat-card>
+      <mat-card class="revenue-card today">
+        <div class="stat-icon">
+          <mat-icon>today</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Today's Bookings</div>
+          <div class="stat-value">{{todayBookings}}</div>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Stats Summary -->
+    <div class="stats-summary">
+      <h3>
+        <mat-icon>trending_up</mat-icon>
+        Work Progress Status
+      </h3>
+      <div class="summary-grid">
+        <mat-card class="summary-card" *ngFor="let option of statusOptions">
+          <div class="summary-content" [class.active]="filterStatus === option.value" (click)="filterStatus = option.value">
+            <div class="summary-header">
+              <div class="summary-label">{{option.label}}</div>
+              <div class="summary-percentage">{{getStatusPercentage(option.value)}}%</div>
+            </div>
+            <div class="summary-value">{{statusCounts[option.value] || 0}}</div>
+            <div class="summary-progress">
+              <div class="progress-bar" [style.width.%]="getStatusPercentage(option.value)"></div>
+            </div>
+          </div>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Payment Status Summary -->
+    <div class="stats-summary payment-stats">
+      <h3>
+        <mat-icon>account_balance_wallet</mat-icon>
+        Payment Status
+      </h3>
+      <div class="summary-grid">
+        <mat-card class="summary-card" *ngFor="let option of paymentOptions">
+          <div class="summary-content" [class.active]="filterPayment === option.value" (click)="filterPayment = option.value">
+            <div class="summary-header">
+              <div class="summary-label">{{option.label}}</div>
+              <div class="summary-percentage">{{getPaymentPercentage(option.value)}}%</div>
+            </div>
+            <div class="summary-value">{{paymentCounts[option.value] || 0}}</div>
+            <div class="summary-progress">
+              <div class="progress-bar" [style.width.%]="getPaymentPercentage(option.value)"></div>
+            </div>
+          </div>
+        </mat-card>
+      </div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-header">
+        <h3>
+          <mat-icon>filter_list</mat-icon>
+          Filters & Search
+        </h3>
+        <div class="filter-actions">
+          <button mat-button (click)="clearFilters()" *ngIf="filterStatus !== 'all' || filterPayment !== 'all' || selectedDate !== 'all' || searchTerm">
+            <mat-icon>clear</mat-icon>
+            Clear All
+          </button>
+          <button mat-icon-button (click)="toggleFilters()">
+            <mat-icon>{{showFilters ? 'expand_less' : 'expand_more'}}</mat-icon>
+          </button>
+        </div>
+      </div>
+      
+      <div class="filter-content" [@slideDown] *ngIf="showFilters">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search Bookings</mat-label>
+        <input matInput [(ngModel)]="searchTerm" placeholder="Search by user, service, or booking ID">
+        <mat-icon matPrefix>search</mat-icon>
+        <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="searchTerm = ''">
+          <mat-icon>clear</mat-icon>
+        </button>
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline">
+        <mat-label>Filter by Status</mat-label>
+        <mat-select [(value)]="filterStatus">
+          <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+            {{option.label}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline">
+        <mat-label>Filter by Payment</mat-label>
+        <mat-select [(value)]="filterPayment">
+          <mat-option *ngFor="let option of paymentOptions" [value]="option.value">
+            {{option.label}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline">
+        <mat-label>Date Range</mat-label>
+        <mat-select [(value)]="selectedDate">
+          <mat-option *ngFor="let option of dateOptions" [value]="option.value">
+            {{option.label}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      
+      <div class="stats">
+        <mat-chip>Showing: {{filteredBookings.length}} of {{bookings.length}}</mat-chip>
+      </div>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="loading-container">
+      <div class="skeleton-grid">
+        <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5]">
+          <div class="skeleton-header">
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-chip"></div>
+          </div>
+          <div class="skeleton-content">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line medium"></div>
+          </div>
+          <div class="skeleton-actions">
+            <div class="skeleton-button"></div>
+            <div class="skeleton-button"></div>
+            <div class="skeleton-button"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!loading" class="bookings-table">
+      <mat-card *ngFor="let booking of filteredBookings" class="booking-card">
+        <div class="booking-header">
+          <div class="booking-info">
+            <div class="booking-id">
+              <mat-icon>confirmation_number</mat-icon>
+              <span>{{booking._id}}</span>
+            </div>
+            <div class="booking-date">
+              <mat-icon>event</mat-icon>
+              <span>{{booking.scheduledDate | date:'MMM dd, yyyy'}} at {{booking.scheduledTime}}</span>
+            </div>
+          </div>
+          <div class="status-chips">
+            <mat-chip [color]="getStatusColor(booking.status)" selected>
+              <mat-icon>{{getStatusIcon(booking.status)}}</mat-icon>
+              {{booking.status}}
+            </mat-chip>
+            <mat-chip [color]="getPaymentStatusColor(booking.paymentStatus || 'pending')" selected class="payment-chip">
+              <mat-icon>{{getPaymentStatusIcon(booking.paymentStatus || 'pending')}}</mat-icon>
+              {{booking.paymentStatus || 'pending'}}
+            </mat-chip>
+          </div>
+        </div>
+
+        <div class="booking-details">
+          <div class="detail-row">
+            <div class="detail-item">
+              <mat-icon>person</mat-icon>
+              <div>
+                <strong>Customer</strong>
+                <p>{{booking.user.name}}</p>
+                <small>{{booking.user.email}} | {{booking.user.phone}}</small>
+              </div>
+            </div>
+            <div class="detail-item">
+              <mat-icon>build</mat-icon>
+              <div>
+                <strong>Service</strong>
+                <p>{{booking.service.name}}</p>
+                <small>Base Price: ₹{{booking.service.price}}</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-row" *ngIf="booking.serviceProvider">
+            <div class="detail-item">
+              <mat-icon>engineering</mat-icon>
+              <div>
+                <strong>Provider</strong>
+                <p>{{booking.serviceProvider.name}}</p>
+                <small>{{booking.serviceProvider.email}}</small>
+              </div>
+            </div>
+            <div class="detail-item">
+              <mat-icon>payments</mat-icon>
+              <div>
+                <strong>Total Amount</strong>
+                <p class="amount">₹{{booking.totalAmount}}</p>
+              </div>
+            </div>
+            <div class="detail-item">
+              <mat-icon>account_balance_wallet</mat-icon>
+              <div>
+                <strong>Payment Status</strong>
+                <p [class]="'payment-status ' + (booking.paymentStatus || 'pending')">
+                  {{(booking.paymentStatus || 'pending') | titlecase}}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-row" *ngIf="booking.description">
+            <div class="detail-item full-width">
+              <mat-icon>description</mat-icon>
+              <div>
+                <strong>Description</strong>
+                <p>{{booking.description}}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-item full-width">
+              <mat-icon>location_on</mat-icon>
+              <div>
+                <strong>Service Address</strong>
+                <p>{{booking.address?.street}}, {{booking.address?.city}}, {{booking.address?.state}} - {{booking.address?.pincode}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <mat-card-actions>
+          <!-- Quick Actions -->
+          <button mat-button color="accent" 
+                  *ngIf="!booking.serviceProvider && booking.status !== 'cancelled'"
+                  (click)="assignProvider(booking)">
+            <mat-icon>person_add</mat-icon>
+            Assign Provider
+          </button>
+          <button mat-button (click)="contactCustomer(booking)">
+            <mat-icon>email</mat-icon>
+            Contact Customer
+          </button>
+          <button mat-button color="primary" (click)="viewBookingDetails(booking)">
+            <mat-icon>visibility</mat-icon>
+            View Details
+          </button>
+
+          <!-- Status Change Buttons -->
+          <button mat-button color="primary" 
+                  *ngIf="booking.status === 'pending'"
+                  (click)="updateBookingStatus(booking, 'confirmed')">
+            <mat-icon>check_circle</mat-icon>
+            Confirm
+          </button>
+          <button mat-button color="accent" 
+                  *ngIf="booking.status === 'confirmed'"
+                  (click)="updateBookingStatus(booking, 'in-progress')">
+            <mat-icon>cached</mat-icon>
+            Start
+          </button>
+          <button mat-button color="primary" 
+                  *ngIf="booking.status === 'in-progress'"
+                  (click)="updateBookingStatus(booking, 'completed')">
+            <mat-icon>done_all</mat-icon>
+            Complete
+          </button>
+          <button mat-button color="warn" 
+                  *ngIf="booking.status !== 'cancelled' && booking.status !== 'completed'"
+                  (click)="updateBookingStatus(booking, 'cancelled')">
+            <mat-icon>cancel</mat-icon>
+            Cancel
+          </button>
+          
+          <span class="action-divider"></span>
+          
+          <!-- Payment Status Buttons -->
+          <button mat-button 
+                  *ngIf="booking.paymentStatus !== 'paid'"
+                  (click)="updatePaymentStatus(booking, 'paid')"
+                  style="color: #10b981;">
+            <mat-icon>payment</mat-icon>
+            Mark Paid
+          </button>
+          <button mat-button 
+                  *ngIf="booking.paymentStatus !== 'pending'"
+                  (click)="updatePaymentStatus(booking, 'pending')"
+                  style="color: #fbbf24;">
+            <mat-icon>schedule</mat-icon>
+            Mark Pending
+          </button>
+          <button mat-button 
+                  *ngIf="booking.paymentStatus !== 'failed'"
+                  (click)="updatePaymentStatus(booking, 'failed')"
+                  style="color: #ef4444;">
+            <mat-icon>error</mat-icon>
+            Mark Failed
+          </button>
+          
+          <span class="action-divider"></span>
+          <button mat-button color="warn" (click)="deleteBooking(booking)">
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+    
+    <div *ngIf="!loading && filteredBookings.length === 0" class="no-bookings">
+      <div class="empty-state">
+        <div class="empty-icon">
+          <mat-icon>event_busy</mat-icon>
+        </div>
+        <h3>No bookings found</h3>
+        <p *ngIf="searchTerm || filterStatus !== 'all' || filterPayment !== 'all' || selectedDate !== 'all'">
+          Try adjusting your filters or search criteria
+        </p>
+        <p *ngIf="!searchTerm && filterStatus === 'all' && filterPayment === 'all' && selectedDate === 'all'">
+          No bookings have been created yet
+        </p>
+        <button mat-raised-button color="primary" (click)="clearFilters()" 
+                *ngIf="searchTerm || filterStatus !== 'all' || filterPayment !== 'all' || selectedDate !== 'all'">
+          <mat-icon>clear</mat-icon>
+          Clear Filters
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

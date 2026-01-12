@@ -8,6 +8,18 @@
       </button>
     </div>
 
+    <!-- Pending Providers Alert -->
+    <div class="pending-alert" *ngIf="pendingProvidersCount > 0">
+      <mat-icon>notifications_active</mat-icon>
+      <div class="alert-content">
+        <h3>{{ pendingProvidersCount }} Provider{{ pendingProvidersCount > 1 ? 's' : '' }} Awaiting Approval</h3>
+        <p>Review and approve new service provider registrations</p>
+      </div>
+      <button mat-raised-button color="accent" (click)="filterRole = 'service-provider'; searchTerm = ''">
+        View Pending
+      </button>
+    </div>
+
     <div class="filter-section">
       <mat-form-field appearance="outline" class="search-field">
         <mat-label>Search Users</mat-label>
@@ -65,9 +77,28 @@
             <mat-icon>{{user.isActive ? 'check_circle' : 'cancel'}}</mat-icon>
             <span>{{user.isActive ? 'Active' : 'Inactive'}}</span>
           </div>
+          <div class="detail-item" *ngIf="user.role === 'service-provider'">
+            <mat-icon>{{getApprovalIcon(user)}}</mat-icon>
+            <span>{{getApprovalStatus(user)}}</span>
+          </div>
         </div>
 
         <mat-card-actions>
+          <!-- Provider Approval Buttons -->
+          <button mat-raised-button color="primary" 
+                  *ngIf="user.role === 'service-provider' && user.approvalStatus === 'pending'"
+                  (click)="approveProvider(user)">
+            <mat-icon>check</mat-icon>
+            Approve
+          </button>
+          <button mat-raised-button color="warn" 
+                  *ngIf="user.role === 'service-provider' && user.approvalStatus === 'pending'"
+                  (click)="rejectProvider(user)">
+            <mat-icon>close</mat-icon>
+            Reject
+          </button>
+          
+          <!-- Regular Action Buttons -->
           <button mat-button color="primary" (click)="viewUserDetails(user)">
             <mat-icon>visibility</mat-icon>
             View Details

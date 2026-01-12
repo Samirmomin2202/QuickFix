@@ -11,6 +11,8 @@ interface UserData {
   role: string;
   isActive: boolean;
   createdAt: Date;
+  approvalStatus?: string;
+  isApproved?: boolean;
 }
 
 @Component({
@@ -77,6 +79,57 @@ export class ManageUsersComponent implements OnInit {
     }
     
     return filtered;
+  }
+
+  get pendingProvidersCount(): number {
+    return this.users.filter(u => 
+      u.role === 'service-provider' && u.approvalStatus === 'pending'
+    ).length;
+  }
+
+  getApprovalStatus(user: UserData): string {
+    if (user.approvalStatus === 'pending') return 'Pending Approval';
+    if (user.approvalStatus === 'approved') return 'Approved';
+    if (user.approvalStatus === 'rejected') return 'Rejected';
+    return 'Unknown';
+  }
+
+  getApprovalIcon(user: UserData): string {
+    if (user.approvalStatus === 'pending') return 'hourglass_empty';
+    if (user.approvalStatus === 'approved') return 'verified';
+    if (user.approvalStatus === 'rejected') return 'cancel';
+    return 'help';
+  }
+
+  approveProvider(user: UserData): void {
+    if (confirm(`Approve ${user.name} as a service provider? They will receive an email notification.`)) {
+      this.userService.approveProvider(user._id).subscribe({
+        next: (response) => {
+          this.showMessage('Provider approved successfully. Email sent.', 'success');
+          this.loadUsers();
+        },
+        error: (error) => {
+          console.error('Error approving provider:', error);
+          this.showMessage('Failed to approve provider', 'error');
+        }
+      });
+    }
+  }
+
+  rejectProvider(user: UserData): void {
+    const reason = prompt('Optional: Provide a reason for rejection');
+    if (reason !== null) { // null means cancelled
+      this.userService.rejectProvider(user._id, reason).subscribe({
+        next: (response) => {
+          this.showMessage('Provider rejected. Email sent.', 'success');
+          this.loadUsers();
+        },
+        error: (error) => {
+          console.error('Error rejecting provider:', error);
+          this.showMessage('Failed to reject provider', 'error');
+        }
+      });
+    }
   }
 
   getRoleBadgeColor(role: string): string {

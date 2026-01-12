@@ -6,6 +6,7 @@ import { ManageCategoriesComponent } from './manage-categories/manage-categories
 import { ManageUsersComponent } from './manage-users/manage-users.component';
 import { ViewReportsComponent } from './view-reports/view-reports.component';
 import { ManageServicesComponent } from './manage-services/manage-services.component';
+import { ManageBookingsComponent } from './manage-bookings/manage-bookings.component';
 import { RoleGuard } from '@core/guards/role.guard';
 
 const routes: Routes = [
@@ -42,6 +43,12 @@ const routes: Routes = [
   {
     path: 'view-reports',
     component: ViewReportsComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['admin'] }
+  },
+  {
+    path: 'manage-bookings',
+    component: ManageBookingsComponent,
     canActivate: [RoleGuard],
     data: { roles: ['admin'] }
   }

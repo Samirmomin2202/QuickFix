@@ -26,4 +26,16 @@ export class UserService {
   deleteUser(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+
+  approveProvider(id: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}/approve`, {});
+  }
+
+  rejectProvider(id: string, reason?: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}/reject`, { reason });
+  }
+
+  createProviderByAdmin(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/provider`, data);
+  }
 }

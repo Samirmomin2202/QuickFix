@@ -1,49 +1,208 @@
 <div class="bookings">
   <div class="container">
-    <h1>My Bookings</h1>
-
-    <div class="loading-container" *ngIf="loading">
-      <mat-spinner></mat-spinner>
+    <!-- Header Section -->
+    <div class="header-section">
+      <div class="header-content">
+        <h1>
+          <mat-icon>book_online</mat-icon>
+          My Bookings
+        </h1>
+        <p class="subtitle">Manage and track all your service bookings</p>
+      </div>
+      <div class="header-actions" *ngIf="!loading && bookings.length > 0">
+        <button mat-raised-button color="primary" routerLink="/services">
+          <mat-icon>add</mat-icon>
+          New Booking
+        </button>
+      </div>
     </div>
 
-    <div class="bookings-list" *ngIf="!loading && bookings.length > 0">
-      <mat-card *ngFor="let booking of bookings" class="booking-card">
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="loading">
+      <mat-spinner></mat-spinner>
+      <p>Loading your bookings...</p>
+    </div>
+
+    <!-- Filter and Search Section -->
+    <div class="filter-section" *ngIf="!loading && bookings.length > 0" @fadeIn>
+      <!-- Status Filter Tabs -->
+      <div class="status-tabs">
+        <button 
+          mat-button 
+          *ngFor="let option of statusOptions"
+          [class.active]="filterStatus === option.value"
+          (click)="filterStatus = option.value; onFilterChange()">
+          <span class="tab-label">{{ option.label }}</span>
+          <span class="tab-count">{{ option.count }}</span>
+        </button>
+      </div>
+
+      <!-- Search and Sort Row -->
+      <div class="search-sort-row">
+        <mat-form-field class="search-field" appearance="outline">
+          <mat-label>Search bookings</mat-label>
+          <input matInput [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" 
+                 placeholder="Search by service, location, status...">
+          <mat-icon matPrefix>search</mat-icon>
+          <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="searchTerm = ''; onSearchChange()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="sort-field">
+          <mat-label>Sort by</mat-label>
+          <mat-select [(ngModel)]="sortBy" (ngModelChange)="onSortChange()">
+            <mat-option *ngFor="let option of sortOptions" [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>sort</mat-icon>
+        </mat-form-field>
+
+        <button mat-stroked-button (click)="clearFilters()" 
+                *ngIf="filterStatus !== 'all' || searchTerm || sortBy !== 'date-desc'">
+          <mat-icon>clear_all</mat-icon>
+          Clear Filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Bookings List -->
+    <div class="bookings-list" *ngIf="!loading && filteredBookings.length > 0" [@listAnimation]="filteredBookings.length">
+      <mat-card *ngFor="let booking of filteredBookings" class="booking-card">
+        <!-- Status Badge -->
+        <div class="status-badge" [style.background]="getStatusColor(booking.status) === 'primary' ? '#6366f1' : 
+                                                      getStatusColor(booking.status) === 'warn' ? '#fbbf24' :
+                                                      getStatusColor(booking.status) === 'accent' ? '#10b981' : '#6b7280'">
+          <mat-icon>{{ getStatusIcon(booking.status) }}</mat-icon>
+          <span>{{ booking.status | titlecase }}</span>
+        </div>
+
         <mat-card-header>
-          <mat-card-title>{{ booking.service?.name }}</mat-card-title>
-          <mat-chip [color]="getStatusColor(booking.status)" selected>
-            {{ booking.status | uppercase }}
-          </mat-chip>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="booking-details">
-            <div class="detail-item">
-              <mat-icon>calendar_today</mat-icon>
-              <span>{{ booking.scheduledDate | date:'medium' }}</span>
+          <div class="service-info">
+            <div class="service-image" *ngIf="booking.service?.image">
+              <img [src]="booking.service.image" [alt]="booking.service.name">
             </div>
-            <div class="detail-item">
-              <mat-icon>location_on</mat-icon>
-              <span>{{ booking.address?.street }}, {{ booking.address?.city }}</span>
-            </div>
-            <div class="detail-item">
-              <mat-icon>attach_money</mat-icon>
-              <span>₹{{ booking.totalAmount }}</span>
+            <div class="service-details">
+              <mat-card-title>{{ booking.service?.name }}</mat-card-title>
+              <mat-card-subtitle>
+                <mat-icon>calendar_today</mat-icon>
+                Booked {{ getTimeAgo(booking.createdAt) }}
+              </mat-card-subtitle>
             </div>
           </div>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="booking-info-grid">
+            <div class="info-item">
+              <div class="info-icon">
+                <mat-icon>event</mat-icon>
+              </div>
+              <div class="info-details">
+                <span class="info-label">Scheduled Date</span>
+                <span class="info-value">{{ booking.scheduledDate | date:'MMM d, y' }}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <div class="info-icon">
+                <mat-icon>schedule</mat-icon>
+              </div>
+              <div class="info-details">
+                <span class="info-label">Time</span>
+                <span class="info-value">{{ booking.scheduledTime || 'Not specified' }}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <div class="info-icon">
+                <mat-icon>location_on</mat-icon>
+              </div>
+              <div class="info-details">
+                <span class="info-label">Location</span>
+                <span class="info-value">{{ booking.address?.city || 'N/A' }}, {{ booking.address?.state || '' }}</span>
+              </div>
+            </div>
+
+            <div class="info-item" *ngIf="booking.serviceProvider">
+              <div class="info-icon">
+                <mat-icon>person</mat-icon>
+              </div>
+              <div class="info-details">
+                <span class="info-label">Provider</span>
+                <span class="info-value">{{ booking.serviceProvider.name }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Info -->
+          <div class="payment-section">
+            <div class="payment-amount">
+              <span class="amount-label">Total Amount</span>
+              <span class="amount-value">₹{{ booking.totalAmount?.toLocaleString() }}</span>
+            </div>
+            <div class="payment-status">
+              <mat-chip [style.background]="getPaymentStatusColor(booking.paymentStatus || 'pending')"
+                        [style.color]="'white'">
+                {{ (booking.paymentStatus || 'pending') | titlecase }}
+              </mat-chip>
+            </div>
+          </div>
+
+          <!-- Description if exists -->
+          <div class="booking-description" *ngIf="booking.description">
+            <mat-icon>notes</mat-icon>
+            <p>{{ booking.description }}</p>
+          </div>
         </mat-card-content>
+
         <mat-card-actions>
-          <button mat-button *ngIf="booking.status === 'pending'" (click)="cancelBooking(booking._id)">
+          <button mat-button color="primary">
+            <mat-icon>visibility</mat-icon>
+            View Details
+          </button>
+          
+          <button mat-button *ngIf="booking.status === 'pending'" (click)="cancelBooking(booking)">
+            <mat-icon>cancel</mat-icon>
             Cancel Booking
           </button>
-          <button mat-button color="primary">View Details</button>
+
+          <button mat-button *ngIf="booking.status === 'completed' && booking.paymentStatus === 'paid'">
+            <mat-icon>star</mat-icon>
+            Rate Service
+          </button>
+
+          <button mat-button *ngIf="booking.serviceProvider">
+            <mat-icon>chat</mat-icon>
+            Contact Provider
+          </button>
         </mat-card-actions>
       </mat-card>
     </div>
 
-    <div class="empty-state" *ngIf="!loading && bookings.length === 0">
-      <mat-icon>event_busy</mat-icon>
+    <!-- No Results State -->
+    <div class="empty-state" *ngIf="!loading && filteredBookings.length === 0 && bookings.length > 0" @fadeIn>
+      <mat-icon>search_off</mat-icon>
+      <h2>No Bookings Found</h2>
+      <p>Try adjusting your filters or search terms</p>
+      <button mat-raised-button color="primary" (click)="clearFilters()">
+        <mat-icon>clear_all</mat-icon>
+        Clear Filters
+      </button>
+    </div>
+
+    <!-- Empty State (No bookings at all) -->
+    <div class="empty-state" *ngIf="!loading && bookings.length === 0" @fadeIn>
+      <div class="empty-icon-wrapper">
+        <mat-icon>event_busy</mat-icon>
+      </div>
       <h2>No Bookings Yet</h2>
       <p>Start exploring our services and make your first booking!</p>
-      <button mat-raised-button color="primary" routerLink="/">Browse Services</button>
+      <button mat-raised-button color="primary" routerLink="/services">
+        <mat-icon>search</mat-icon>
+        Browse Services
+      </button>
     </div>
   </div>
 </div>

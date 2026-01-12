@@ -33,7 +33,10 @@
           </div>
           <div class="stat-value">₹{{stats.totalRevenue.toLocaleString()}}</div>
           <div class="stat-footer">
-            <span class="stat-change positive">+12.5%</span>
+            <span class="stat-change" [ngClass]="trends.revenue >= 0 ? 'positive' : 'negative'">
+              <mat-icon>{{ trends.revenue >= 0 ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+              {{trends.revenue}}%
+            </span>
             <span class="stat-period">vs last month</span>
           </div>
         </mat-card>
@@ -45,7 +48,10 @@
           </div>
           <div class="stat-value">{{stats.totalBookings}}</div>
           <div class="stat-footer">
-            <span class="stat-change positive">+8.2%</span>
+            <span class="stat-change" [ngClass]="trends.bookings >= 0 ? 'positive' : 'negative'">
+              <mat-icon>{{ trends.bookings >= 0 ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+              {{trends.bookings}}%
+            </span>
             <span class="stat-period">vs last month</span>
           </div>
         </mat-card>
@@ -57,7 +63,10 @@
           </div>
           <div class="stat-value">{{stats.totalServices}}</div>
           <div class="stat-footer">
-            <span class="stat-change positive">+5.1%</span>
+            <span class="stat-change" [ngClass]="trends.services >= 0 ? 'positive' : 'negative'">
+              <mat-icon>{{ trends.services >= 0 ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+              {{trends.services}}%
+            </span>
             <span class="stat-period">vs last month</span>
           </div>
         </mat-card>
@@ -69,7 +78,10 @@
           </div>
           <div class="stat-value">{{stats.totalUsers}}</div>
           <div class="stat-footer">
-            <span class="stat-change positive">+15.3%</span>
+            <span class="stat-change" [ngClass]="trends.users >= 0 ? 'positive' : 'negative'">
+              <mat-icon>{{ trends.users >= 0 ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+              {{trends.users}}%
+            </span>
             <span class="stat-period">vs last month</span>
           </div>
         </mat-card>
@@ -80,31 +92,61 @@
         <!-- Chart Card -->
         <mat-card class="chart-card">
           <mat-card-header>
-            <mat-card-title>Revenue Overview</mat-card-title>
+            <mat-card-title>Revenue Overview (Last 12 Days)</mat-card-title>
             <div class="chart-actions">
-              <button mat-button class="active">Week</button>
-              <button mat-button>Month</button>
-              <button mat-button>Year</button>
+              <button mat-button class="active">
+                <mat-icon>bar_chart</mat-icon>
+                Chart
+              </button>
             </div>
           </mat-card-header>
-          <mat-card-content>
+          <mat-card-content *ngIf="chartData.length > 0">
             <div class="chart-container">
-              <div class="chart-placeholder">
+              <div class="chart-wrapper">
+                <!-- Y-axis labels -->
+                <div class="y-axis">
+                  <span class="y-label">High</span>
+                  <span class="y-label">Mid</span>
+                  <span class="y-label">Low</span>
+                </div>
+                
+                <!-- Grid lines -->
+                <div class="chart-grid">
+                  <div class="grid-line"></div>
+                  <div class="grid-line"></div>
+                  <div class="grid-line"></div>
+                  <div class="grid-line"></div>
+                </div>
+                
+                <!-- Bar chart -->
                 <div class="bar-chart">
-                  <div class="bar" style="height: 45%"></div>
-                  <div class="bar" style="height: 30%"></div>
-                  <div class="bar" style="height: 60%"></div>
-                  <div class="bar" style="height: 40%"></div>
-                  <div class="bar" style="height: 75%"></div>
-                  <div class="bar" style="height: 55%"></div>
-                  <div class="bar" style="height: 85%"></div>
-                  <div class="bar" style="height: 50%"></div>
-                  <div class="bar" style="height: 65%"></div>
-                  <div class="bar" style="height: 45%"></div>
-                  <div class="bar" style="height: 70%"></div>
-                  <div class="bar" style="height: 60%"></div>
+                  <div class="bar-wrapper" *ngFor="let data of chartData; let i = index" 
+                       [style.animation-delay]="(i * 50) + 'ms'">
+                    <div class="bar" [style.height]="getChartHeight(data)">
+                      <div class="bar-fill"></div>
+                      <div class="bar-tooltip">
+                        <span class="tooltip-value">₹{{data.toLocaleString()}}</span>
+                        <span class="tooltip-label">Day {{i + 1}}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
+              
+              <!-- X-axis labels -->
+              <div class="chart-labels">
+                <span *ngFor="let data of chartData; let i = index" class="chart-label">
+                  <mat-icon class="label-icon">calendar_today</mat-icon>
+                  <span>Day {{i + 1}}</span>
+                </span>
+              </div>
+            </div>
+          </mat-card-content>
+          <mat-card-content *ngIf="chartData.length === 0" class="no-chart-data">
+            <div class="empty-chart">
+              <mat-icon>bar_chart</mat-icon>
+              <p>No revenue data available</p>
+              <small>Create some bookings to see the chart</small>
             </div>
           </mat-card-content>
         </mat-card>
@@ -116,43 +158,20 @@
           </mat-card-header>
           <mat-card-content>
             <div class="activity-list">
-              <div class="activity-item">
-                <div class="activity-icon blue">
-                  <mat-icon>shopping_cart</mat-icon>
+              <div class="activity-item" *ngFor="let activity of recentActivities">
+                <div class="activity-icon" [ngClass]="activity.iconColor">
+                  <mat-icon>{{activity.icon}}</mat-icon>
                 </div>
                 <div class="activity-details">
-                  <p class="activity-title">New Booking</p>
-                  <p class="activity-time">2 minutes ago</p>
+                  <p class="activity-title">{{activity.title}}</p>
+                  <p class="activity-subtitle" *ngIf="activity.subtitle">{{activity.subtitle}}</p>
+                  <p class="activity-time">{{activity.time}}</p>
                 </div>
-                <span class="activity-value">₹549</span>
+                <span class="activity-value" *ngIf="activity.value">{{activity.value}}</span>
               </div>
-              <div class="activity-item">
-                <div class="activity-icon green">
-                  <mat-icon>person_add</mat-icon>
-                </div>
-                <div class="activity-details">
-                  <p class="activity-title">New User Registration</p>
-                  <p class="activity-time">15 minutes ago</p>
-                </div>
-              </div>
-              <div class="activity-item">
-                <div class="activity-icon orange">
-                  <mat-icon>build</mat-icon>
-                </div>
-                <div class="activity-details">
-                  <p class="activity-title">Service Completed</p>
-                  <p class="activity-time">1 hour ago</p>
-                </div>
-                <span class="activity-value">₹1,299</span>
-              </div>
-              <div class="activity-item">
-                <div class="activity-icon purple">
-                  <mat-icon>star</mat-icon>
-                </div>
-                <div class="activity-details">
-                  <p class="activity-title">New Review Added</p>
-                  <p class="activity-time">2 hours ago</p>
-                </div>
+              <div class="empty-activity" *ngIf="recentActivities.length === 0">
+                <mat-icon>timeline</mat-icon>
+                <p>No recent activity</p>
               </div>
             </div>
           </mat-card-content>
@@ -245,6 +264,10 @@
           <button mat-raised-button class="action-btn" routerLink="/admin/manage-users">
             <mat-icon>people</mat-icon>
             <span>Manage Users</span>
+          </button>
+          <button mat-raised-button class="action-btn" routerLink="/admin/manage-bookings">
+            <mat-icon>book_online</mat-icon>
+            <span>Manage Bookings</span>
           </button>
           <button mat-raised-button class="action-btn" routerLink="/admin/view-reports">
             <mat-icon>assessment</mat-icon>

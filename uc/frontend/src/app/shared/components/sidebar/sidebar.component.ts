@@ -42,6 +42,11 @@ import { filter } from 'rxjs/operators';
               <span>Manage Users</span>
             </a>
             
+            <a mat-button routerLink="/admin/manage-bookings" routerLinkActive="active">
+              <mat-icon>book_online</mat-icon>
+              <span>Manage Bookings</span>
+            </a>
+            
             <a mat-button routerLink="/admin/view-reports" routerLinkActive="active">
               <mat-icon>assessment</mat-icon>
               <span>View Reports</span>

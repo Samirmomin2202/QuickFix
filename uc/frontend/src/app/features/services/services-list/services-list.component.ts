@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ServiceService } from '@core/services/service.service';
 import { CategoryService } from '@core/services/category.service';
 import { Service, Category } from '@core/models';
@@ -20,12 +20,20 @@ export class ServicesListComponent implements OnInit {
   constructor(
     private serviceService: ServiceService,
     private categoryService: CategoryService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.loadCategories();
-    this.loadServices();
+    
+    // Check for category query parameter
+    this.route.queryParams.subscribe(params => {
+      if (params['category']) {
+        this.selectedCategory = params['category'];
+      }
+      this.loadServices();
+    });
   }
 
   loadCategories(): void {

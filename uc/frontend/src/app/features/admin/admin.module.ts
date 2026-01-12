@@ -7,6 +7,7 @@ import { ManageCategoriesComponent } from './manage-categories/manage-categories
 import { ManageUsersComponent } from './manage-users/manage-users.component';
 import { ViewReportsComponent } from './view-reports/view-reports.component';
 import { ManageServicesComponent } from './manage-services/manage-services.component';
+import { ManageBookingsComponent } from './manage-bookings/manage-bookings.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { ManageServicesComponent } from './manage-services/manage-services.compo
     ManageCategoriesComponent,
     ManageUsersComponent,
     ViewReportsComponent,
-    ManageServicesComponent
+    ManageServicesComponent,
+    ManageBookingsComponent
   ],
   imports: [
     SharedModule,
