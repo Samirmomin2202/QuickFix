@@ -31,7 +31,7 @@ export class AdminComponent implements OnInit {
   };
 
   recentActivities: any[] = [];
-  chartData: number[] = [];
+  chartData: number[] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; // Initialize with 12 zeros for 12 days
 
   loading = true;
 
@@ -67,6 +67,9 @@ export class AdminComponent implements OnInit {
     const chartData: number[] = [];
     const today = new Date();
     
+    console.log('=== Generating Chart Data ===');
+    console.log('Total bookings received:', bookings.length);
+    
     for (let i = 11; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
@@ -75,18 +78,22 @@ export class AdminComponent implements OnInit {
       const nextDate = new Date(date);
       nextDate.setDate(nextDate.getDate() + 1);
       
-      const dayRevenue = bookings
-        .filter((b: any) => {
-          const bookingDate = new Date(b.createdAt);
-          return bookingDate >= date && bookingDate < nextDate && b.status !== 'cancelled';
-        })
-        .reduce((sum: number, b: any) => sum + (b.totalAmount || 0), 0);
+      const dayBookings = bookings.filter((b: any) => {
+        const bookingDate = new Date(b.createdAt);
+        return bookingDate >= date && bookingDate < nextDate && b.status !== 'cancelled';
+      });
       
+      const dayRevenue = dayBookings.reduce((sum: number, b: any) => sum + (b.totalAmount || 0), 0);
+      
+      console.log(`Day ${12 - i}: ${date.toDateString()} - Bookings: ${dayBookings.length}, Revenue: ₹${dayRevenue}`);
       chartData.push(dayRevenue);
     }
     
     this.chartData = chartData;
-    console.log('Chart Data Generated:', this.chartData);
+    console.log('Chart Data Array:', this.chartData);
+    console.log('Chart data length:', this.chartData.length);
+    console.log('Max value:', Math.max(...this.chartData));
+    console.log('=== Chart Data Generation Complete ===');
   }
 
   sortActivities(): void {
@@ -99,8 +106,15 @@ export class AdminComponent implements OnInit {
 
   getChartHeight(value: number): string {
     if (this.chartData.length === 0) return '0%';
-    const maxValue = Math.max(...this.chartData, 1);
+    const maxValue = Math.max(...this.chartData, 1); // Ensure at least 1 to avoid division by zero
+    
+    // If all values are 0, show small bars
+    if (maxValue === 0 || maxValue === 1) {
+      return value === 0 ? '5%' : '10%';
+    }
+    
     const percentage = (value / maxValue) * 100;
+    // Ensure minimum height of 5% for visibility, even if value is 0
     return `${Math.max(percentage, 5)}%`;
   }
 
