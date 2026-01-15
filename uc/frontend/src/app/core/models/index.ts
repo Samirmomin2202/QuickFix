@@ -21,6 +21,12 @@ export interface Address {
   landmark?: string;
 }
 
+export interface BookingClientDetails {
+  name: string;
+  email: string;
+  phone: string;
+}
+
 // Category interface
 export interface Category {
   _id: string;
@@ -62,8 +68,11 @@ export interface Booking {
   user: User | string;
   service: Service | string;
   serviceProvider?: User | string;
+  bookingFor: 'self' | 'someone-else';
+  clientDetails: BookingClientDetails;
   scheduledDate: Date;
   scheduledTime: string;
+  preferredTimeSlots?: string[];
   address: Address;
   status: 'pending' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled';
   totalAmount: number;
@@ -151,6 +160,8 @@ export interface AuthResponse {
 // Booking Create Request
 export interface CreateBookingRequest {
   service: string;
+  bookingFor: 'self' | 'someone-else';
+  clientDetails: BookingClientDetails;
   scheduledDate: Date;
   scheduledTime: string;
   address: Address;

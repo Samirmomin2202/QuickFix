@@ -54,17 +54,72 @@
           </mat-card-header>
           <mat-card-content>
             <form [formGroup]="bookingForm" (ngSubmit)="bookService()">
-              <h4>Schedule</h4>
-              <div class="schedule-fields">
+              <h4>Booking Contact</h4>
+              <div class="booking-for-options">
+                <mat-radio-group formControlName="bookingFor" class="booking-for-radio">
+                  <mat-radio-button value="self">For me</mat-radio-button>
+                  <mat-radio-button value="someone-else">For someone else</mat-radio-button>
+                </mat-radio-group>
+              </div>
+
+              <div formGroupName="clientDetails" class="client-details-grid">
                 <mat-form-field appearance="outline">
-                  <mat-label>Date</mat-label>
-                  <input matInput type="date" formControlName="scheduledDate">
+                  <mat-label>Full Name</mat-label>
+                  <input matInput formControlName="name" [readonly]="isSelfBooking">
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
-                  <mat-label>Time</mat-label>
-                  <input matInput type="time" formControlName="scheduledTime">
+                  <mat-label>Email</mat-label>
+                  <input matInput formControlName="email" type="email" [readonly]="isSelfBooking">
                 </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Phone Number</mat-label>
+                  <input matInput formControlName="phone" type="tel" maxlength="10" [readonly]="isSelfBooking">
+                </mat-form-field>
+              </div>
+
+              <p class="self-booking-hint" *ngIf="isSelfBooking">
+                We use your profile details for self bookings. Update your profile to change them.
+              </p>
+
+              <h4>Select Date & Time</h4>
+              
+              <!-- Calendar Date Picker -->
+              <div class="date-picker-section">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Choose Date</mat-label>
+                  <input matInput 
+                         [matDatepicker]="picker" 
+                         [min]="minDate"
+                         formControlName="scheduledDate"
+                         (dateChange)="selectDate($any($event).value)"
+                         placeholder="Select a date">
+                  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                  <mat-icon matPrefix>event</mat-icon>
+                </mat-form-field>
+              </div>
+
+              <!-- Time Slot Selection -->
+              <div class="time-slots-section" *ngIf="selectedDate">
+                <h5>Select Preferred Time Slots <span class="slot-hint">(Click multiple slots)</span></h5>
+                <p class="selected-count" *ngIf="selectedTimeSlots.length > 0">
+                  {{ selectedTimeSlots.length }} slot(s) selected
+                </p>
+                <div class="time-slots-grid">
+                  <mat-card 
+                    *ngFor="let slot of timeSlots" 
+                    class="time-slot-card"
+                    [class.selected]="isTimeSlotSelected(slot.value)"
+                    (click)="selectTimeSlot(slot)">
+                    <mat-card-content>
+                      <mat-icon>schedule</mat-icon>
+                      <div class="slot-time">{{ slot.display }}</div>
+                      <div class="slot-duration">1.5 hours</div>
+                    </mat-card-content>
+                  </mat-card>
+                </div>
               </div>
 
               <h4>Address</h4>
@@ -77,17 +132,32 @@
                 <div class="address-row">
                   <mat-form-field appearance="outline">
                     <mat-label>City</mat-label>
-                    <input matInput formControlName="city">
+                    <input matInput formControlName="city" [matAutocomplete]="autoCity">
+                    <mat-autocomplete #autoCity="matAutocomplete">
+                      <mat-option *ngFor="let city of filteredCities | async" [value]="city">
+                        {{ city }}
+                      </mat-option>
+                    </mat-autocomplete>
                   </mat-form-field>
 
                   <mat-form-field appearance="outline">
                     <mat-label>State</mat-label>
-                    <input matInput formControlName="state">
+                    <input matInput formControlName="state" [matAutocomplete]="autoState">
+                    <mat-autocomplete #autoState="matAutocomplete">
+                      <mat-option *ngFor="let state of filteredStates | async" [value]="state">
+                        {{ state }}
+                      </mat-option>
+                    </mat-autocomplete>
                   </mat-form-field>
 
                   <mat-form-field appearance="outline">
                     <mat-label>Pincode</mat-label>
-                    <input matInput formControlName="pincode" maxlength="6">
+                    <input matInput formControlName="pincode" maxlength="6" [matAutocomplete]="autoPincode">
+                    <mat-autocomplete #autoPincode="matAutocomplete">
+                      <mat-option *ngFor="let pincode of filteredPincodes | async" [value]="pincode">
+                        {{ pincode }}
+                      </mat-option>
+                    </mat-autocomplete>
                   </mat-form-field>
                 </div>
 

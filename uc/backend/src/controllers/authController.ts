@@ -436,6 +436,14 @@ const sendTokenResponse = (user: any, statusCode: number, res: Response) => {
   // Create token
   const token = user.getSignedJwtToken();
 
+  // Log authentication details in backend (for debugging)
+  console.log('\n🔐 Authentication Success:');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('User:', user.email);
+  console.log('Role:', user.role);
+  console.log('Token:', token);
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
   // Remove password from output
   user.password = undefined;
 

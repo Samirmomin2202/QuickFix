@@ -124,8 +124,15 @@ export interface IBooking {
   user: string | IUser;
   service: string | IService;
   serviceProvider?: string | IUser;
+  bookingFor: 'self' | 'someone-else';
+  clientDetails: {
+    name: string;
+    email: string;
+    phone: string;
+  };
   scheduledDate: Date;
   scheduledTime: string;
+  preferredTimeSlots?: string[];
   address: {
     street: string;
     city: string;

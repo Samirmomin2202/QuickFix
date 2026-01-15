@@ -42,73 +42,6 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- JWT Token Section -->
-    <mat-card class="token-card">
-      <mat-card-content>
-        <div class="token-section">
-          <div class="token-header">
-            <h2>
-              <mat-icon>vpn_key</mat-icon>
-              Authentication Token
-            </h2>
-            <mat-icon 
-              class="info-icon" 
-              matTooltip="Your JWT authentication token used for API requests">
-              info
-            </mat-icon>
-          </div>
-          
-          <div class="token-status" [class.expired]="isTokenExpired()">
-            <mat-icon>{{ isTokenExpired() ? 'error' : 'check_circle' }}</mat-icon>
-            <span>{{ isTokenExpired() ? 'Token Expired' : 'Token Active' }}</span>
-          </div>
-
-          <div class="token-display">
-            <div class="token-text">
-              <code>{{ getMaskedToken() }}</code>
-            </div>
-            <div class="token-actions">
-              <button 
-                mat-icon-button 
-                (click)="toggleTokenVisibility()"
-                [matTooltip]="showToken ? 'Hide token' : 'Show token'">
-                <mat-icon>{{ showToken ? 'visibility_off' : 'visibility' }}</mat-icon>
-              </button>
-              <button 
-                mat-icon-button 
-                (click)="copyToken()"
-                [matTooltip]="tokenCopied ? 'Copied!' : 'Copy token'"
-                [color]="tokenCopied ? 'accent' : ''">
-                <mat-icon>{{ tokenCopied ? 'check' : 'content_copy' }}</mat-icon>
-              </button>
-            </div>
-          </div>
-
-          <div class="token-info">
-            <div class="info-item">
-              <mat-icon>schedule</mat-icon>
-              <div>
-                <label>Expires At</label>
-                <span>{{ getTokenExpiry() }}</span>
-              </div>
-            </div>
-            <div class="info-item">
-              <mat-icon>code</mat-icon>
-              <div>
-                <label>Token Length</label>
-                <span>{{ jwtToken.length }} characters</span>
-              </div>
-            </div>
-          </div>
-
-          <mat-hint class="token-hint">
-            <mat-icon>warning</mat-icon>
-            Keep your token secure. Never share it publicly or commit it to version control.
-          </mat-hint>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
     <!-- Profile Form -->
     <mat-card class="form-card">
       <mat-card-content>
@@ -209,10 +142,12 @@
               <input 
                 #addressInput
                 matInput 
+                type="text"
+                autocomplete="off"
                 formControlName="fullAddress" 
-                placeholder="Start typing your address...">
-              <mat-icon matPrefix>search</mat-icon>
-              <mat-hint>Type to get address suggestions (like Uber/Rapido)</mat-hint>
+                placeholder="Type your address here">
+              <mat-icon matPrefix>location_on</mat-icon>
+              <mat-hint>Start typing to search for your address</mat-hint>
             </mat-form-field>
 
             <!-- Map Toggle Button -->

@@ -16,6 +16,26 @@ const BookingSchema = new Schema<IBooking>({
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
+  bookingFor: {
+    type: String,
+    enum: ['self', 'someone-else'],
+    default: 'self'
+  },
+  clientDetails: {
+    name: {
+      type: String,
+      trim: true
+    },
+    email: {
+      type: String,
+      trim: true,
+      lowercase: true
+    },
+    phone: {
+      type: String,
+      trim: true
+    }
+  },
   scheduledDate: {
     type: Date,
     required: [true, 'Please provide a scheduled date']
@@ -24,6 +44,10 @@ const BookingSchema = new Schema<IBooking>({
     type: String,
     required: [true, 'Please provide a scheduled time'],
     match: [/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Please provide time in HH:MM format']
+  },
+  preferredTimeSlots: {
+    type: [String],
+    default: []
   },
   address: {
     street: {

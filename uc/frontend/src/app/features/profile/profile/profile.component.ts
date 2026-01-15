@@ -55,11 +55,7 @@ export class ProfileComponent implements OnInit {
   map: any = null;
   marker: any = null;
   showMap = false;
-  
-  // JWT Token properties
-  jwtToken: string = '';
-  showToken: boolean = false;
-  tokenCopied: boolean = false;
+  private googleMapsLoading?: Promise<void>;
 
   genderOptions = [
     { value: 'male', label: 'Male' },
@@ -79,7 +75,7 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     this.initializeForm();
     this.loadProfile();
-    this.loadJwtToken();
+    this.loadGoogleMaps();
   }
 
   initializeForm(): void {
@@ -149,15 +145,59 @@ export class ProfileComponent implements OnInit {
     }
   }
 
+  loadGoogleMaps(): void {
+    // Already loaded
+    if (typeof google !== 'undefined' && google.maps) {
+      this.googleMapsLoaded = true;
+      return;
+    }
+
+    // Already loading
+    if (this.googleMapsLoading) return;
+
+    if (!environment.googleMapsApiKey) {
+      console.info('Google Maps API key not configured');
+      return;
+    }
+
+    this.googleMapsLoading = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${environment.googleMapsApiKey}&libraries=places&loading=async`;
+      script.async = true;
+      script.defer = true;
+
+      script.onload = () => {
+        this.googleMapsLoaded = true;
+        resolve();
+        if (this.profile && this.addressInput) {
+          setTimeout(() => this.initializeGoogleMaps(), 300);
+        }
+      };
+
+      script.onerror = () => {
+        this.googleMapsLoaded = false;
+        reject();
+      };
+
+      document.head.appendChild(script);
+    });
+  }
+
   checkAndInitializeGoogleMaps(): void {
-    // Check if Google Maps is available
     if (typeof google !== 'undefined' && google.maps) {
       this.googleMapsLoaded = true;
       this.initializeGoogleMaps();
-    } else {
-      console.warn('Google Maps API not loaded. Map features will be disabled.');
-      this.googleMapsLoaded = false;
+      return;
     }
+
+    // Trigger load and retry shortly instead of warning immediately
+    this.loadGoogleMaps();
+    setTimeout(() => {
+      if (typeof google !== 'undefined' && google.maps) {
+        this.googleMapsLoaded = true;
+        this.initializeGoogleMaps();
+      }
+    }, 600);
   }
 
   initializeGoogleMaps(): void {
@@ -459,75 +499,5 @@ export class ProfileComponent implements OnInit {
     }
     
     return age;
-  }
-
-  // JWT Token Methods
-  loadJwtToken(): void {
-    this.jwtToken = localStorage.getItem('token') || '';
-  }
-
-  toggleTokenVisibility(): void {
-    this.showToken = !this.showToken;
-  }
-
-  getMaskedToken(): string {
-    if (!this.jwtToken) return 'No token available';
-    if (this.showToken) return this.jwtToken;
-    
-    // Show first 20 and last 20 characters
-    if (this.jwtToken.length > 40) {
-      return this.jwtToken.substring(0, 20) + '...' + this.jwtToken.substring(this.jwtToken.length - 20);
-    }
-    return '•'.repeat(this.jwtToken.length);
-  }
-
-  copyToken(): void {
-    if (!this.jwtToken) {
-      this.snackBar.open('No token to copy', 'Close', { duration: 2000 });
-      return;
-    }
-
-    navigator.clipboard.writeText(this.jwtToken).then(() => {
-      this.tokenCopied = true;
-      this.snackBar.open('Token copied to clipboard!', 'Close', {
-        duration: 2000,
-        panelClass: 'success-snackbar'
-      });
-      
-      setTimeout(() => {
-        this.tokenCopied = false;
-      }, 2000);
-    }).catch(err => {
-      this.snackBar.open('Failed to copy token', 'Close', { duration: 2000 });
-    });
-  }
-
-  getTokenExpiry(): string {
-    if (!this.jwtToken) return 'N/A';
-    
-    try {
-      const payload = JSON.parse(atob(this.jwtToken.split('.')[1]));
-      if (payload.exp) {
-        const expiryDate = new Date(payload.exp * 1000);
-        return expiryDate.toLocaleString();
-      }
-    } catch (e) {
-      return 'Invalid token';
-    }
-    return 'N/A';
-  }
-
-  isTokenExpired(): boolean {
-    if (!this.jwtToken) return true;
-    
-    try {
-      const payload = JSON.parse(atob(this.jwtToken.split('.')[1]));
-      if (payload.exp) {
-        return Date.now() >= payload.exp * 1000;
-      }
-    } catch (e) {
-      return true;
-    }
-    return true;
   }
 }

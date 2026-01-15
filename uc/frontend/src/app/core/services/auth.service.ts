@@ -113,6 +113,7 @@ export class AuthService {
 
   private handleAuthSuccess(response: AuthResponse): void {
     if (response.success && response.token && response.user) {
+      // Store token securely (not logged to console for security)
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
       this.currentUserSubject.next(response.user);

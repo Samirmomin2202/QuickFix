@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express';
 import asyncHandler from 'express-async-handler';
 import Booking from '../models/Booking';
 import Service from '../models/Service';
+import Profile from '../models/Profile';
 import ErrorResponse from '../utils/errorResponse';
 import { AuthRequest } from '../types';
 
@@ -70,6 +71,25 @@ export const createBooking = asyncHandler(async (req: AuthRequest, res: Response
   if (!service) {
     return next(new ErrorResponse('Service not found', 404));
   }
+
+  const bookingFor: 'self' | 'someone-else' = req.body.bookingFor === 'someone-else' ? 'someone-else' : 'self';
+  let clientDetails = req.body.clientDetails;
+
+  if (bookingFor === 'self') {
+    const profile = await Profile.findOne({ user: req.user!._id });
+    clientDetails = {
+      name: profile?.name || req.user!.name,
+      email: profile?.email || req.user!.email,
+      phone: profile?.phone || req.user!.phone
+    };
+  } else {
+    if (!clientDetails?.name || !clientDetails?.email || !clientDetails?.phone) {
+      return next(new ErrorResponse('Please provide name, email and phone for the person you are booking for', 400));
+    }
+  }
+
+  req.body.bookingFor = bookingFor;
+  req.body.clientDetails = clientDetails;
 
   // Calculate total amount
   req.body.totalAmount = service.discountPrice || service.price;

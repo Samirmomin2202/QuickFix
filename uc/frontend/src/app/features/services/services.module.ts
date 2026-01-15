@@ -9,6 +9,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatRadioModule } from '@angular/material/radio';
 
 import { ServicesRoutingModule } from './services-routing.module';
 import { ServiceDetailComponent } from './service-detail/service-detail.component';
@@ -31,7 +35,11 @@ import { ServicesListComponent } from './services-list/services-list.component';
     MatSelectModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatChipsModule
+    MatChipsModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatAutocompleteModule,
+    MatRadioModule
   ]
 })
 export class ServicesModule { }
