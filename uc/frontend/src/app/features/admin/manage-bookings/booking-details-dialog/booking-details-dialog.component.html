@@ -1,0 +1,184 @@
+<div class="booking-details-dialog">
+  <h2 mat-dialog-title>
+    <mat-icon>event_note</mat-icon>
+    Booking Details
+  </h2>
+
+  <mat-dialog-content>
+    <!-- Booking ID & Status -->
+    <div class="section">
+      <div class="section-header">
+        <mat-icon>confirmation_number</mat-icon>
+        <h3>Booking Information</h3>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">Booking ID</span>
+          <span class="value">
+            {{booking._id}}
+            <button mat-icon-button (click)="copyToClipboard(booking._id)" matTooltip="Copy">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Status</span>
+          <span class="value">
+            <mat-chip [style.background-color]="getStatusColor(booking.status)" class="status-chip">
+              {{booking.status}}
+            </mat-chip>
+          </span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Payment Status</span>
+          <span class="value">
+            <mat-chip [style.background-color]="getPaymentStatusColor(booking.paymentStatus || 'pending')" class="status-chip">
+              {{booking.paymentStatus || 'pending'}}
+            </mat-chip>
+          </span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Created</span>
+          <span class="value">{{booking.createdAt | date:'medium'}}</span>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Customer Information -->
+    <div class="section">
+      <div class="section-header">
+        <mat-icon>person</mat-icon>
+        <h3>Customer Information</h3>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">Name</span>
+          <span class="value">{{booking.user.name}}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Email</span>
+          <span class="value">
+            <a [href]="'mailto:' + booking.user.email">{{booking.user.email}}</a>
+          </span>
+        </div>
+        <div class="detail-item" *ngIf="booking.user.phone">
+          <span class="label">Phone</span>
+          <span class="value">
+            <a [href]="'tel:' + booking.user.phone">{{booking.user.phone}}</a>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Service Details -->
+    <div class="section">
+      <div class="section-header">
+        <mat-icon>build</mat-icon>
+        <h3>Service Details</h3>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">Service</span>
+          <span class="value">{{booking.service.name}}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Price</span>
+          <span class="value">₹{{booking.service.price.toLocaleString()}}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Total Amount</span>
+          <span class="value total-amount">₹{{booking.totalAmount.toLocaleString()}}</span>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Schedule -->
+    <div class="section">
+      <div class="section-header">
+        <mat-icon>schedule</mat-icon>
+        <h3>Schedule</h3>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">Date</span>
+          <span class="value">{{booking.scheduledDate | date:'fullDate'}}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Time</span>
+          <span class="value">{{booking.scheduledTime}}</span>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Address -->
+    <div class="section">
+      <div class="section-header">
+        <mat-icon>location_on</mat-icon>
+        <h3>Service Address</h3>
+      </div>
+      <div class="address-info">
+        <p *ngIf="booking.address?.street">{{booking.address.street}}</p>
+        <p *ngIf="booking.address?.city || booking.address?.state">
+          {{booking.address.city}}<span *ngIf="booking.address.city && booking.address.state">, </span>{{booking.address.state}}
+          <span *ngIf="booking.address.zipCode"> - {{booking.address.zipCode}}</span>
+        </p>
+        <p *ngIf="!booking.address || (!booking.address.street && !booking.address.city)" class="no-data">
+          No address provided
+        </p>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Service Provider -->
+    <div class="section">
+      <div class="section-header">
+        <mat-icon>engineering</mat-icon>
+        <h3>Service Provider</h3>
+      </div>
+      <div *ngIf="booking.serviceProvider" class="detail-grid">
+        <div class="detail-item">
+          <span class="label">Name</span>
+          <span class="value">{{booking.serviceProvider.name}}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Email</span>
+          <span class="value">
+            <a [href]="'mailto:' + booking.serviceProvider.email">{{booking.serviceProvider.email}}</a>
+          </span>
+        </div>
+      </div>
+      <div *ngIf="!booking.serviceProvider" class="no-data">
+        <mat-icon>person_off</mat-icon>
+        <p>No provider assigned yet</p>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="section" *ngIf="booking.description">
+      <mat-divider></mat-divider>
+      <div class="section-header">
+        <mat-icon>description</mat-icon>
+        <h3>Description</h3>
+      </div>
+      <div class="description">
+        <p>{{booking.description}}</p>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-raised-button color="primary" (click)="onClose()">
+      <mat-icon>close</mat-icon>
+      Close
+    </button>
+  </mat-dialog-actions>
+</div>

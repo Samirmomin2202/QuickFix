@@ -1,0 +1,87 @@
+<div class="assign-provider-dialog">
+  <h2 mat-dialog-title>
+    <mat-icon>person_add</mat-icon>
+    Assign Service Provider
+  </h2>
+
+  <mat-dialog-content>
+    <div class="booking-info">
+      <h3>Booking Details</h3>
+      <div class="info-row">
+        <span class="label">Booking ID:</span>
+        <span class="value">{{data.booking._id}}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Service:</span>
+        <span class="value">{{data.booking.service.name}}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Customer:</span>
+        <span class="value">{{data.booking.user.name}}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Date:</span>
+        <span class="value">{{data.booking.scheduledDate | date:'mediumDate'}} at {{data.booking.scheduledTime}}</span>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div class="provider-selection">
+      <h3>Select Provider</h3>
+      
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search providers</mat-label>
+        <input matInput [formControl]="searchControl" placeholder="Search by name or email">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+
+      <div *ngIf="loading" class="loading">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Loading providers...</p>
+      </div>
+
+      <div *ngIf="!loading && filteredProviders.length === 0" class="no-providers">
+        <mat-icon>person_off</mat-icon>
+        <p>No service providers available</p>
+      </div>
+
+      <div *ngIf="!loading && filteredProviders.length > 0" class="providers-list">
+        <mat-card 
+          *ngFor="let provider of filteredProviders" 
+          class="provider-card"
+          [class.selected]="selectedProvider?._id === provider._id"
+          (click)="selectProvider(provider)">
+          <mat-card-content>
+            <div class="provider-info">
+              <div class="provider-avatar">
+                <mat-icon>person</mat-icon>
+              </div>
+              <div class="provider-details">
+                <h4>{{provider.name}}</h4>
+                <p class="email">{{provider.email}}</p>
+                <p class="phone" *ngIf="provider.phone">
+                  <mat-icon>phone</mat-icon>
+                  {{provider.phone}}
+                </p>
+              </div>
+              <mat-icon *ngIf="selectedProvider?._id === provider._id" class="check-icon">
+                check_circle
+              </mat-icon>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-raised-button color="primary" 
+            [disabled]="!selectedProvider" 
+            (click)="onAssign()">
+      <mat-icon>check</mat-icon>
+      Assign Provider
+    </button>
+  </mat-dialog-actions>
+</div>

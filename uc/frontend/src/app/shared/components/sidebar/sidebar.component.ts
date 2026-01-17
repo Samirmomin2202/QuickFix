@@ -67,9 +67,24 @@ import { filter } from 'rxjs/operators';
           </div>
           
           <nav class="sidebar-nav">
-            <a mat-button routerLink="/provider/dashboard" routerLinkActive="active">
+            <a mat-button routerLink="/provider" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
               <mat-icon>dashboard</mat-icon>
               <span>Dashboard</span>
+            </a>
+            
+            <a mat-button routerLink="/provider/profile" routerLinkActive="active">
+              <mat-icon>person</mat-icon>
+              <span>Profile</span>
+            </a>
+            
+            <a mat-button routerLink="/provider/analytics" routerLinkActive="active">
+              <mat-icon>analytics</mat-icon>
+              <span>Analytics</span>
+            </a>
+            
+            <a mat-button routerLink="/provider/bank-details" routerLinkActive="active">
+              <mat-icon>account_balance</mat-icon>
+              <span>Bank Details</span>
             </a>
             
             <a mat-button routerLink="/bookings" routerLinkActive="active">

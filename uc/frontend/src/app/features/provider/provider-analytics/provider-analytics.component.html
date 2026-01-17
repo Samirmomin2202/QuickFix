@@ -1,0 +1,262 @@
+<div class="provider-analytics-container">
+  <div class="page-header">
+    <h1><mat-icon>analytics</mat-icon> Analytics & Reports</h1>
+    <p>Track your performance and business insights</p>
+  </div>
+
+  <ng-container *ngIf="loading">
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!loading">
+    <!-- Key Metrics -->
+    <div class="metrics-grid">
+      <mat-card class="metric-card revenue">
+        <mat-card-content>
+          <div class="metric-icon">
+            <mat-icon>account_balance_wallet</mat-icon>
+          </div>
+          <div class="metric-details">
+            <span class="metric-label">Total Revenue</span>
+            <span class="metric-value">{{ formatCurrency(totalRevenue) }}</span>
+            <span class="metric-trend positive">
+              <mat-icon>trending_up</mat-icon>
+              All time earnings
+            </span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="metric-card bookings">
+        <mat-card-content>
+          <div class="metric-icon">
+            <mat-icon>assignment</mat-icon>
+          </div>
+          <div class="metric-details">
+            <span class="metric-label">Total Bookings</span>
+            <span class="metric-value">{{ totalBookings }}</span>
+            <span class="metric-trend">
+              <mat-icon>book_online</mat-icon>
+              All time
+            </span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="metric-card completion">
+        <mat-card-content>
+          <div class="metric-icon">
+            <mat-icon>task_alt</mat-icon>
+          </div>
+          <div class="metric-details">
+            <span class="metric-label">Completion Rate</span>
+            <span class="metric-value">{{ completionRate }}%</span>
+            <span class="metric-trend positive" *ngIf="completionRate >= 70">
+              <mat-icon>emoji_events</mat-icon>
+              Excellent
+            </span>
+            <span class="metric-trend" *ngIf="completionRate < 70">
+              <mat-icon>info</mat-icon>
+              Can improve
+            </span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="metric-card rating">
+        <mat-card-content>
+          <div class="metric-icon">
+            <mat-icon>star</mat-icon>
+          </div>
+          <div class="metric-details">
+            <span class="metric-label">Average Rating</span>
+            <span class="metric-value">{{ averageRating }}<small>/5</small></span>
+            <span class="metric-trend positive">
+              <mat-icon>star_rate</mat-icon>
+              Excellent
+            </span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Monthly Trends -->
+    <mat-card class="chart-card">
+      <mat-card-header>
+        <mat-card-title>Monthly Trends</mat-card-title>
+        <mat-card-subtitle>Bookings and revenue over the last 6 months</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="chart-container">
+          <div class="chart-legend">
+            <div class="legend-item">
+              <span class="legend-color bookings-color"></span>
+              <span>Bookings</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color revenue-color"></span>
+              <span>Revenue</span>
+            </div>
+          </div>
+          
+          <div class="bar-chart">
+            <div class="chart-bars">
+              <div class="bar-group" *ngFor="let data of monthlyData">
+                <div class="bar-container">
+                  <div class="bar bookings-bar" 
+                       [style.height.%]="data.bookings * 10"
+                       [title]="data.bookings + ' bookings'">
+                    <span class="bar-label">{{ data.bookings }}</span>
+                  </div>
+                  <div class="bar revenue-bar" 
+                       [style.height.%]="(data.revenue / 1000)"
+                       [title]="formatCurrency(data.revenue)">
+                    <span class="bar-label">{{ (data.revenue / 1000).toFixed(1) }}k</span>
+                  </div>
+                </div>
+                <span class="month-label">{{ data.month }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="analytics-row">
+      <!-- Status Distribution -->
+      <mat-card class="status-card">
+        <mat-card-header>
+          <mat-card-title>Booking Status Distribution</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="status-list">
+            <div class="status-item">
+              <div class="status-info">
+                <div class="status-dot pending"></div>
+                <span class="status-name">Pending</span>
+              </div>
+              <div class="status-stats">
+                <span class="status-count">{{ statusDistribution.pending }}</span>
+                <div class="status-bar">
+                  <mat-progress-bar 
+                    mode="determinate" 
+                    [value]="getStatusPercentage('pending')" 
+                    color="warn">
+                  </mat-progress-bar>
+                </div>
+                <span class="status-percentage">{{ getStatusPercentage('pending') }}%</span>
+              </div>
+            </div>
+
+            <div class="status-item">
+              <div class="status-info">
+                <div class="status-dot confirmed"></div>
+                <span class="status-name">Confirmed</span>
+              </div>
+              <div class="status-stats">
+                <span class="status-count">{{ statusDistribution.confirmed }}</span>
+                <div class="status-bar">
+                  <mat-progress-bar 
+                    mode="determinate" 
+                    [value]="getStatusPercentage('confirmed')" 
+                    color="primary">
+                  </mat-progress-bar>
+                </div>
+                <span class="status-percentage">{{ getStatusPercentage('confirmed') }}%</span>
+              </div>
+            </div>
+
+            <div class="status-item">
+              <div class="status-info">
+                <div class="status-dot in-progress"></div>
+                <span class="status-name">In Progress</span>
+              </div>
+              <div class="status-stats">
+                <span class="status-count">{{ statusDistribution.inProgress }}</span>
+                <div class="status-bar">
+                  <mat-progress-bar 
+                    mode="determinate" 
+                    [value]="getStatusPercentage('inProgress')" 
+                    color="accent">
+                  </mat-progress-bar>
+                </div>
+                <span class="status-percentage">{{ getStatusPercentage('inProgress') }}%</span>
+              </div>
+            </div>
+
+            <div class="status-item">
+              <div class="status-info">
+                <div class="status-dot completed"></div>
+                <span class="status-name">Completed</span>
+              </div>
+              <div class="status-stats">
+                <span class="status-count">{{ statusDistribution.completed }}</span>
+                <div class="status-bar">
+                  <mat-progress-bar 
+                    mode="determinate" 
+                    [value]="getStatusPercentage('completed')" 
+                    color="primary">
+                  </mat-progress-bar>
+                </div>
+                <span class="status-percentage">{{ getStatusPercentage('completed') }}%</span>
+              </div>
+            </div>
+
+            <div class="status-item">
+              <div class="status-info">
+                <div class="status-dot cancelled"></div>
+                <span class="status-name">Cancelled</span>
+              </div>
+              <div class="status-stats">
+                <span class="status-count">{{ statusDistribution.cancelled }}</span>
+                <div class="status-bar">
+                  <mat-progress-bar 
+                    mode="determinate" 
+                    [value]="getStatusPercentage('cancelled')">
+                  </mat-progress-bar>
+                </div>
+                <span class="status-percentage">{{ getStatusPercentage('cancelled') }}%</span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Top Services -->
+      <mat-card class="services-card">
+        <mat-card-header>
+          <mat-card-title>Top Services</mat-card-title>
+          <mat-card-subtitle>Most requested services</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="services-list">
+            <div class="service-item" *ngFor="let service of serviceStats; let i = index">
+              <div class="service-rank">{{ i + 1 }}</div>
+              <div class="service-details">
+                <span class="service-name">{{ service.serviceName }}</span>
+                <div class="service-progress">
+                  <mat-progress-bar 
+                    mode="determinate" 
+                    [value]="service.percentage" 
+                    color="primary">
+                  </mat-progress-bar>
+                </div>
+                <div class="service-stats">
+                  <span class="service-count">{{ service.count }} bookings</span>
+                  <span class="service-percentage">{{ service.percentage }}%</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="empty-state" *ngIf="serviceStats.length === 0">
+              <mat-icon>design_services</mat-icon>
+              <p>No service data available yet</p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </ng-container>
+</div>

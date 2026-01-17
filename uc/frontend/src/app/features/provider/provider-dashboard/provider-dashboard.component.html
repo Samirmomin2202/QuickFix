@@ -1,143 +1,269 @@
-<div class="provider-dashboard">
-  <div class="container">
-    <h1>Provider Dashboard</h1>
-
-    <div class="stats-grid">
-      <mat-card class="stat-card">
-        <mat-card-content>
-          <div class="stat-icon">
-            <mat-icon>assignment</mat-icon>
+<div class="provider-dashboard-container">
+  <div class="dashboard-header">
+    <div class="welcome-section">
+      <div class="avatar-section">
+        <img *ngIf="profileImageUrl; else defaultAvatar" 
+             [src]="profileImageUrl" 
+             alt="Profile" 
+             class="provider-avatar">
+        <ng-template #defaultAvatar>
+          <div class="default-avatar">
+            <mat-icon>account_circle</mat-icon>
           </div>
-          <h3>{{stats.total}}</h3>
-          <p>Total Bookings</p>
+        </ng-template>
+      </div>
+      <div class="welcome-text">
+        <h1>Welcome back, {{ currentUser?.name || 'Provider' }}!</h1>
+        <p class="subtitle">Here's what's happening with your services today</p>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="loading">
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!loading">
+    <!-- Dashboard Stats Cards -->
+    <div class="stats-grid">
+      <mat-card class="stat-card clients">
+        <mat-card-content>
+          <div class="stat-header">
+            <div class="stat-icon">
+              <mat-icon>people</mat-icon>
+            </div>
+            <span class="stat-label">Total Clients</span>
+          </div>
+          <div class="stat-value">{{ stats.totalClients }}</div>
+          <div class="stat-footer">
+            <span class="stat-trend positive">
+              <mat-icon>trending_up</mat-icon>
+              Active clients
+            </span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card services">
+        <mat-card-content>
+          <div class="stat-header">
+            <div class="stat-icon">
+              <mat-icon>design_services</mat-icon>
+            </div>
+            <span class="stat-label">Active Services</span>
+          </div>
+          <div class="stat-value">{{ stats.activeServices }}</div>
+          <div class="stat-footer">
+            <span class="stat-trend">
+              <mat-icon>check_circle</mat-icon>
+              Services offered
+            </span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card revenue">
+        <mat-card-content>
+          <div class="stat-header">
+            <div class="stat-icon">
+              <mat-icon>account_balance_wallet</mat-icon>
+            </div>
+            <span class="stat-label">Monthly Revenue</span>
+          </div>
+          <div class="stat-value">{{ formatCurrency(stats.monthlyRevenue) }}</div>
+          <div class="stat-footer">
+            <span class="stat-trend positive">
+              <mat-icon>trending_up</mat-icon>
+              This month
+            </span>
+          </div>
         </mat-card-content>
       </mat-card>
 
       <mat-card class="stat-card pending">
         <mat-card-content>
-          <div class="stat-icon">
-            <mat-icon>pending</mat-icon>
+          <div class="stat-header">
+            <div class="stat-icon">
+              <mat-icon>pending_actions</mat-icon>
+            </div>
+            <span class="stat-label">Pending Requests</span>
           </div>
-          <h3>{{stats.pending}}</h3>
-          <p>Pending</p>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="stat-card confirmed">
-        <mat-card-content>
-          <div class="stat-icon">
-            <mat-icon>check_circle</mat-icon>
+          <div class="stat-value">{{ stats.pendingRequests }}</div>
+          <div class="stat-footer">
+            <span class="stat-trend warning" *ngIf="stats.pendingRequests > 0">
+              <mat-icon>priority_high</mat-icon>
+              Needs attention
+            </span>
+            <span class="stat-trend" *ngIf="stats.pendingRequests === 0">
+              <mat-icon>check_circle</mat-icon>
+              All clear
+            </span>
           </div>
-          <h3>{{stats.confirmed}}</h3>
-          <p>Confirmed</p>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="stat-card completed">
-        <mat-card-content>
-          <div class="stat-icon">
-            <mat-icon>done_all</mat-icon>
-          </div>
-          <h3>{{stats.completed}}</h3>
-          <p>Completed</p>
         </mat-card-content>
       </mat-card>
     </div>
 
-    <mat-card class="bookings-table">
-      <mat-card-header>
-        <mat-card-title>Your Bookings</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <ng-container *ngIf="loading">
-          <div class="loading-container">
-            <mat-spinner></mat-spinner>
+    <!-- Quick Actions -->
+    <div class="quick-actions-section">
+      <mat-card class="quick-actions-card">
+        <mat-card-header>
+          <mat-card-title>Quick Actions</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="actions-grid">
+            <button mat-raised-button color="primary" routerLink="/provider/profile">
+              <mat-icon>person</mat-icon>
+              Update Profile
+            </button>
+            <button mat-raised-button color="accent" routerLink="/provider/analytics">
+              <mat-icon>analytics</mat-icon>
+              View Analytics
+            </button>
+            <button mat-raised-button routerLink="/provider/bank-details">
+              <mat-icon>account_balance</mat-icon>
+              Bank Details
+            </button>
+            <button mat-raised-button routerLink="/bookings">
+              <mat-icon>book_online</mat-icon>
+              All Bookings
+            </button>
           </div>
-        </ng-container>
+        </mat-card-content>
+      </mat-card>
+    </div>
 
-        <ng-container *ngIf="!loading">
-          <ng-container *ngIf="bookings.length === 0">
+    <!-- Recent Bookings -->
+    <div class="recent-bookings-section">
+      <mat-card class="recent-bookings-card">
+        <mat-card-header>
+          <mat-card-title>Recent Bookings</mat-card-title>
+          <button mat-button color="primary" routerLink="/bookings">View All</button>
+        </mat-card-header>
+        <mat-card-content>
+          <ng-container *ngIf="recentBookings.length === 0">
             <div class="empty-state">
               <mat-icon>assignment_late</mat-icon>
               <h3>No bookings yet</h3>
-              <p>You don't have any assigned bookings at the moment.</p>
+              <p>You don't have any bookings at the moment.</p>
             </div>
           </ng-container>
 
-          <ng-container *ngIf="bookings.length > 0">
+          <ng-container *ngIf="recentBookings.length > 0">
             <div class="bookings-list">
-              <mat-card class="booking-card" *ngFor="let booking of bookings">
-                <div class="booking-header">
-                  <div class="booking-info">
-                    <h3>{{getServiceName(booking)}}</h3>
-                    <p class="customer-name">
-                      <mat-icon>person</mat-icon>
-                      {{getUserName(booking)}}
-                    </p>
+              <div class="booking-item" *ngFor="let booking of recentBookings">
+                <div class="booking-content">
+                  <div class="booking-main-info">
+                    <div class="service-info">
+                      <h4>{{ getServiceName(booking) }}</h4>
+                      <div class="customer-info">
+                        <mat-icon>person</mat-icon>
+                        <span>{{ getUserName(booking) }}</span>
+                      </div>
+                    </div>
+                    <mat-chip [color]="getStatusColor(booking.status)" selected>
+                      {{ booking.status }}
+                    </mat-chip>
                   </div>
-                  <mat-chip [color]="getStatusColor(booking.status)" selected>
-                    {{booking.status}}
-                  </mat-chip>
-                </div>
+                  
+                  <div class="booking-details-grid">
+                    <div class="detail-item">
+                      <mat-icon>calendar_today</mat-icon>
+                      <span>{{ formatDate(booking.scheduledDate) }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <mat-icon>access_time</mat-icon>
+                      <span>{{ booking.scheduledTime }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <mat-icon>location_on</mat-icon>
+                      <span>{{ booking.address.city }}, {{ booking.address.state }}</span>
+                    </div>
+                    <div class="detail-item amount">
+                      <mat-icon>currency_rupee</mat-icon>
+                      <span class="amount-value">{{ formatCurrency(booking.totalAmount) }}</span>
+                    </div>
+                  </div>
 
-                <div class="booking-details">
-                  <div class="detail-item">
-                    <mat-icon>calendar_today</mat-icon>
-                    <span>{{formatDate(booking.scheduledDate)}}</span>
-                  </div>
-                  <div class="detail-item">
-                    <mat-icon>access_time</mat-icon>
-                    <span>{{booking.scheduledTime}}</span>
-                  </div>
-                  <div class="detail-item">
-                    <mat-icon>location_on</mat-icon>
-                    <span>{{booking.address.city}}, {{booking.address.state}}</span>
-                  </div>
-                  <div class="detail-item">
-                    <mat-icon>phone</mat-icon>
-                    <span>{{getUserPhone(booking)}}</span>
-                  </div>
-                  <div class="detail-item amount">
-                    <mat-icon>payments</mat-icon>
-                    <span>₹{{booking.totalAmount}}</span>
-                  </div>
-                </div>
-
-                <ng-container *ngIf="booking.status === 'pending' || booking.status === 'confirmed' || booking.status === 'in-progress'">
-                  <div class="booking-actions">
-                    <button mat-button 
-                            *ngIf="booking.status === 'pending'"
-                            (click)="updateBookingStatus(booking._id, 'confirmed')">
-                      <mat-icon>check</mat-icon> Confirm
+                  <div class="booking-actions" *ngIf="booking.status === 'pending'">
+                    <button mat-raised-button color="primary" (click)="updateBookingStatus(booking._id, 'confirmed')">
+                      <mat-icon>check</mat-icon>
+                      Accept
                     </button>
-                    <button mat-button color="primary"
-                            *ngIf="booking.status === 'confirmed'"
-                            (click)="updateBookingStatus(booking._id, 'in-progress')">
-                      <mat-icon>play_arrow</mat-icon> Start
-                    </button>
-                    <button mat-raised-button color="primary"
-                            *ngIf="booking.status === 'in-progress'"
-                            (click)="updateBookingStatus(booking._id, 'completed')">
-                      <mat-icon>done</mat-icon> Complete
+                    <button mat-stroked-button color="warn" (click)="updateBookingStatus(booking._id, 'cancelled')">
+                      <mat-icon>close</mat-icon>
+                      Decline
                     </button>
                   </div>
-                </ng-container>
 
-                <div class="address-full" *ngIf="booking.address?.street">
-                  <strong>Full Address:</strong>
-                  <p>{{booking.address.street}}, {{booking.address.city}}, {{booking.address.state}} - {{booking.address.pincode}}</p>
-                  <p *ngIf="booking.address.landmark">Landmark: {{booking.address.landmark}}</p>
-                </div>
+                  <div class="booking-actions" *ngIf="booking.status === 'confirmed'">
+                    <button mat-raised-button color="accent" (click)="updateBookingStatus(booking._id, 'in-progress')">
+                      <mat-icon>play_arrow</mat-icon>
+                      Start Service
+                    </button>
+                  </div>
 
-                <div class="notes" *ngIf="booking.notes">
-                  <strong>Special Instructions:</strong>
-                  <p>{{booking.notes}}</p>
+                  <div class="booking-actions" *ngIf="booking.status === 'in-progress'">
+                    <button mat-raised-button color="primary" (click)="updateBookingStatus(booking._id, 'completed')">
+                      <mat-icon>done</mat-icon>
+                      Mark Complete
+                    </button>
+                  </div>
                 </div>
-              </mat-card>
+              </div>
             </div>
           </ng-container>
-        </ng-container>
-      </mat-card-content>
-    </mat-card>
-  </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Performance Overview -->
+    <div class="performance-section">
+      <mat-card class="performance-card">
+        <mat-card-header>
+          <mat-card-title>Performance Overview</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="performance-grid">
+            <div class="performance-item">
+              <div class="performance-label">Total Bookings</div>
+              <div class="performance-value">{{ bookingStats.total }}</div>
+              <mat-progress-bar mode="determinate" [value]="100" color="primary"></mat-progress-bar>
+            </div>
+            
+            <div class="performance-item">
+              <div class="performance-label">Pending</div>
+              <div class="performance-value">{{ bookingStats.pending }}</div>
+              <mat-progress-bar 
+                mode="determinate" 
+                [value]="bookingStats.total > 0 ? (bookingStats.pending / bookingStats.total * 100) : 0" 
+                color="warn">
+              </mat-progress-bar>
+            </div>
+            
+            <div class="performance-item">
+              <div class="performance-label">Confirmed</div>
+              <div class="performance-value">{{ bookingStats.confirmed }}</div>
+              <mat-progress-bar 
+                mode="determinate" 
+                [value]="bookingStats.total > 0 ? (bookingStats.confirmed / bookingStats.total * 100) : 0" 
+                color="accent">
+              </mat-progress-bar>
+            </div>
+            
+            <div class="performance-item">
+              <div class="performance-label">Completed</div>
+              <div class="performance-value">{{ bookingStats.completed }}</div>
+              <mat-progress-bar 
+                mode="determinate" 
+                [value]="bookingStats.total > 0 ? (bookingStats.completed / bookingStats.total * 100) : 0" 
+                color="primary">
+              </mat-progress-bar>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </ng-container>
 </div>

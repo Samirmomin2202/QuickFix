@@ -1,0 +1,254 @@
+<div class="provider-bank-details-container">
+  <div class="page-header">
+    <h1><mat-icon>account_balance</mat-icon> Bank Account Details</h1>
+    <p>Manage your payment and banking information securely</p>
+  </div>
+
+  <ng-container *ngIf="loading">
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!loading">
+    <!-- Security Notice -->
+    <mat-card class="security-notice">
+      <mat-card-content>
+        <div class="notice-content">
+          <mat-icon>security</mat-icon>
+          <div>
+            <h3>Your Information is Secure</h3>
+            <p>We use industry-standard encryption to protect your banking information. Your account details are never shared with third parties.</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Bank Details Display -->
+    <mat-card class="bank-details-card" *ngIf="bankDetails && !editing">
+      <mat-card-header>
+        <mat-card-title>Current Bank Details</mat-card-title>
+        <button mat-raised-button color="primary" (click)="toggleEdit()">
+          <mat-icon>edit</mat-icon>
+          Edit Details
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="details-grid">
+          <div class="detail-item">
+            <div class="detail-icon">
+              <mat-icon>person</mat-icon>
+            </div>
+            <div class="detail-content">
+              <span class="detail-label">Account Holder Name</span>
+              <span class="detail-value">{{ bankDetails.accountHolderName }}</span>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-icon">
+              <mat-icon>account_balance</mat-icon>
+            </div>
+            <div class="detail-content">
+              <span class="detail-label">Bank Name</span>
+              <span class="detail-value">{{ bankDetails.bankName }}</span>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-icon">
+              <mat-icon>credit_card</mat-icon>
+            </div>
+            <div class="detail-content">
+              <span class="detail-label">Account Number</span>
+              <div class="account-number-row">
+                <span class="detail-value">
+                  {{ hideAccountNumber ? maskAccountNumber(bankDetails.accountNumber) : bankDetails.accountNumber }}
+                </span>
+                <button mat-icon-button 
+                        (click)="hideAccountNumber = !hideAccountNumber"
+                        [title]="hideAccountNumber ? 'Show' : 'Hide'">
+                  <mat-icon>{{ hideAccountNumber ? 'visibility' : 'visibility_off' }}</mat-icon>
+                </button>
+                <button mat-icon-button 
+                        (click)="copyToClipboard(bankDetails.accountNumber)"
+                        title="Copy to clipboard">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-icon">
+              <mat-icon>qr_code</mat-icon>
+            </div>
+            <div class="detail-content">
+              <span class="detail-label">IFSC Code</span>
+              <div class="ifsc-row">
+                <span class="detail-value">{{ bankDetails.ifscCode }}</span>
+                <button mat-icon-button 
+                        (click)="copyToClipboard(bankDetails.ifscCode)"
+                        title="Copy to clipboard">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-item" *ngIf="bankDetails.branch">
+            <div class="detail-icon">
+              <mat-icon>location_city</mat-icon>
+            </div>
+            <div class="detail-content">
+              <span class="detail-label">Branch</span>
+              <span class="detail-value">{{ bankDetails.branch }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- No Bank Details -->
+    <mat-card class="no-details-card" *ngIf="!bankDetails && !editing">
+      <mat-card-content>
+        <div class="empty-state">
+          <mat-icon>account_balance</mat-icon>
+          <h3>No Bank Details Added</h3>
+          <p>Add your bank account details to receive payments</p>
+          <button mat-raised-button color="primary" (click)="editing = true">
+            <mat-icon>add</mat-icon>
+            Add Bank Details
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Bank Details Form -->
+    <mat-card class="bank-form-card" *ngIf="editing">
+      <mat-card-header>
+        <mat-card-title>{{ bankDetails ? 'Update' : 'Add' }} Bank Details</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="bankForm" (ngSubmit)="onSubmit()">
+          <div class="form-grid">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Account Holder Name</mat-label>
+              <input matInput 
+                     formControlName="accountHolderName" 
+                     placeholder="As per bank records">
+              <mat-icon matPrefix>person</mat-icon>
+              <mat-error *ngIf="bankForm.get('accountHolderName')?.hasError('required')">
+                Account holder name is required
+              </mat-error>
+              <mat-error *ngIf="bankForm.get('accountHolderName')?.hasError('minlength')">
+                Name must be at least 3 characters
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Bank Name</mat-label>
+              <input matInput 
+                     formControlName="bankName" 
+                     placeholder="e.g., State Bank of India">
+              <mat-icon matPrefix>account_balance</mat-icon>
+              <mat-error *ngIf="bankForm.get('bankName')?.hasError('required')">
+                Bank name is required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Account Number</mat-label>
+              <input matInput 
+                     formControlName="accountNumber" 
+                     placeholder="Enter account number"
+                     type="text">
+              <mat-icon matPrefix>credit_card</mat-icon>
+              <mat-error *ngIf="bankForm.get('accountNumber')?.hasError('required')">
+                Account number is required
+              </mat-error>
+              <mat-error *ngIf="bankForm.get('accountNumber')?.hasError('pattern')">
+                Invalid account number (9-18 digits)
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Confirm Account Number</mat-label>
+              <input matInput 
+                     formControlName="confirmAccountNumber" 
+                     placeholder="Re-enter account number"
+                     type="text">
+              <mat-icon matPrefix>credit_card</mat-icon>
+              <mat-error *ngIf="bankForm.get('confirmAccountNumber')?.hasError('required')">
+                Please confirm your account number
+              </mat-error>
+              <mat-error *ngIf="bankForm.hasError('accountNumberMismatch')">
+                Account numbers do not match
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>IFSC Code</mat-label>
+              <input matInput 
+                     formControlName="ifscCode" 
+                     placeholder="e.g., SBIN0001234"
+                     style="text-transform: uppercase;">
+              <mat-icon matPrefix>qr_code</mat-icon>
+              <mat-hint>11-character IFSC code</mat-hint>
+              <mat-error *ngIf="bankForm.get('ifscCode')?.hasError('required')">
+                IFSC code is required
+              </mat-error>
+              <mat-error *ngIf="bankForm.get('ifscCode')?.hasError('pattern')">
+                Invalid IFSC code format
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Branch (Optional)</mat-label>
+              <input matInput 
+                     formControlName="branch" 
+                     placeholder="Branch name">
+              <mat-icon matPrefix>location_city</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-actions">
+            <button mat-raised-button 
+                    color="primary" 
+                    type="submit" 
+                    [disabled]="bankForm.invalid || saving">
+              <mat-icon>{{ saving ? 'hourglass_empty' : 'save' }}</mat-icon>
+              {{ saving ? 'Saving...' : 'Save Details' }}
+            </button>
+            <button mat-button 
+                    type="button" 
+                    (click)="toggleEdit()" 
+                    [disabled]="saving">
+              <mat-icon>close</mat-icon>
+              Cancel
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Important Information -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>info</mat-icon>
+          Important Information
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <ul>
+          <li>Ensure the account holder name matches your registered name</li>
+          <li>Double-check your account number and IFSC code to avoid payment delays</li>
+          <li>Your bank details will be verified before processing any payments</li>
+          <li>Update your details immediately if you change your bank account</li>
+          <li>Contact support if you face any issues with payment transfers</li>
+        </ul>
+      </mat-card-content>
+    </mat-card>
+  </ng-container>
+</div>

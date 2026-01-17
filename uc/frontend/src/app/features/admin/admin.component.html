@@ -100,7 +100,7 @@
               </button>
             </div>
           </mat-card-header>
-          <mat-card-content *ngIf="!loading && chartData.length > 0">
+          <mat-card-content>
             <div class="chart-container">
               <div class="chart-wrapper">
                 <!-- Y-axis labels -->
@@ -126,7 +126,7 @@
                       <div class="bar-fill"></div>
                       <div class="bar-tooltip">
                         <span class="tooltip-value">₹{{data.toLocaleString()}}</span>
-                        <span class="tooltip-label">Day {{i + 1}}</span>
+                        <span class="tooltip-label">{{chartLabels[i]}}</span>
                       </div>
                     </div>
                   </div>
@@ -135,18 +135,11 @@
               
               <!-- X-axis labels -->
               <div class="chart-labels">
-                <span *ngFor="let data of chartData; let i = index" class="chart-label">
+                <span *ngFor="let label of chartLabels; let i = index" class="chart-label">
                   <mat-icon class="label-icon">calendar_today</mat-icon>
-                  <span>Day {{i + 1}}</span>
+                  <span>{{label}}</span>
                 </span>
               </div>
-            </div>
-          </mat-card-content>
-          <mat-card-content *ngIf="!loading && chartData.length === 0" class="no-chart-data">
-            <div class="empty-chart">
-              <mat-icon>bar_chart</mat-icon>
-              <p>No revenue data available</p>
-              <small>Create some bookings to see the chart</small>
             </div>
           </mat-card-content>
         </mat-card>

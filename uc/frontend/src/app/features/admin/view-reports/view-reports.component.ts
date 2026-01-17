@@ -2,6 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { BookingService } from '@core/services/booking.service';
 import { ServiceService } from '@core/services/service.service';
 
+interface MonthlyData {
+  month: string;
+  bookings: number;
+  revenue: number;
+}
+
 @Component({
   standalone: false,
   selector: 'app-view-reports',
@@ -24,6 +30,8 @@ export class ViewReportsComponent implements OnInit {
     },
     recentBookings: [] as any[]
   };
+
+  monthlyData: MonthlyData[] = [];
 
   constructor(
     private bookingService: BookingService,
@@ -56,6 +64,9 @@ export class ViewReportsComponent implements OnInit {
 
         // Recent bookings
         this.reportData.recentBookings = bookings.slice(0, 5);
+        
+        // Calculate monthly data
+        this.calculateMonthlyData(bookings);
       }
     });
 
@@ -66,6 +77,51 @@ export class ViewReportsComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  calculateMonthlyData(bookings: any[]): void {
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthlyMap = new Map<string, { bookings: number; revenue: number }>();
+
+    // Initialize last 6 months
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      const key = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+      monthlyMap.set(key, { bookings: 0, revenue: 0 });
+    }
+
+    // Populate with actual data
+    bookings.forEach((booking: any) => {
+      const date = new Date(booking.scheduledDate);
+      const key = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+      
+      if (monthlyMap.has(key)) {
+        const data = monthlyMap.get(key)!;
+        data.bookings++;
+        if (booking.status === 'completed') {
+          data.revenue += booking.totalAmount || 0;
+        }
+      }
+    });
+
+    this.monthlyData = Array.from(monthlyMap.entries()).map(([month, data]) => ({
+      month,
+      bookings: data.bookings,
+      revenue: data.revenue
+    }));
+  }
+
+  getStatusPercentage(status: keyof typeof this.reportData.bookingsByStatus): number {
+    const total = this.reportData.totalBookings || 1;
+    return Math.round((this.reportData.bookingsByStatus[status] / total) * 100);
+  }
+
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR'
+    }).format(amount);
   }
 
   formatDate(date: Date): string {

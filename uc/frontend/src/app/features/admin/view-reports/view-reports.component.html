@@ -54,40 +54,124 @@
           <mat-card-title>Bookings by Status</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <div class="status-grid">
-            <div class="status-item">
-              <mat-icon color="warn">pending</mat-icon>
-              <div>
-                <h3>{{reportData.bookingsByStatus.pending}}</h3>
-                <p>Pending</p>
+          <div class="status-list">
+            <div class="status-row">
+              <div class="status-label">
+                <mat-icon color="warn">pending</mat-icon>
+                <span>Pending</span>
+              </div>
+              <div class="status-bar-container">
+                <div class="status-count">{{reportData.bookingsByStatus.pending}}</div>
+                <mat-progress-bar 
+                  mode="determinate" 
+                  [value]="getStatusPercentage('pending')" 
+                  color="warn">
+                </mat-progress-bar>
+                <span class="status-percentage">{{getStatusPercentage('pending')}}%</span>
               </div>
             </div>
-            <div class="status-item">
-              <mat-icon color="primary">check_circle</mat-icon>
-              <div>
-                <h3>{{reportData.bookingsByStatus.confirmed}}</h3>
-                <p>Confirmed</p>
+
+            <div class="status-row">
+              <div class="status-label">
+                <mat-icon color="primary">check_circle</mat-icon>
+                <span>Confirmed</span>
+              </div>
+              <div class="status-bar-container">
+                <div class="status-count">{{reportData.bookingsByStatus.confirmed}}</div>
+                <mat-progress-bar 
+                  mode="determinate" 
+                  [value]="getStatusPercentage('confirmed')" 
+                  color="primary">
+                </mat-progress-bar>
+                <span class="status-percentage">{{getStatusPercentage('confirmed')}}%</span>
               </div>
             </div>
-            <div class="status-item">
-              <mat-icon color="accent">play_circle</mat-icon>
-              <div>
-                <h3>{{reportData.bookingsByStatus.inProgress}}</h3>
-                <p>In Progress</p>
+
+            <div class="status-row">
+              <div class="status-label">
+                <mat-icon color="accent">play_circle</mat-icon>
+                <span>In Progress</span>
+              </div>
+              <div class="status-bar-container">
+                <div class="status-count">{{reportData.bookingsByStatus.inProgress}}</div>
+                <mat-progress-bar 
+                  mode="determinate" 
+                  [value]="getStatusPercentage('inProgress')" 
+                  color="accent">
+                </mat-progress-bar>
+                <span class="status-percentage">{{getStatusPercentage('inProgress')}}%</span>
               </div>
             </div>
-            <div class="status-item">
-              <mat-icon style="color: #4caf50">done_all</mat-icon>
-              <div>
-                <h3>{{reportData.bookingsByStatus.completed}}</h3>
-                <p>Completed</p>
+
+            <div class="status-row">
+              <div class="status-label">
+                <mat-icon style="color: #4caf50">done_all</mat-icon>
+                <span>Completed</span>
+              </div>
+              <div class="status-bar-container">
+                <div class="status-count">{{reportData.bookingsByStatus.completed}}</div>
+                <mat-progress-bar 
+                  mode="determinate" 
+                  [value]="getStatusPercentage('completed')" 
+                  color="primary">
+                </mat-progress-bar>
+                <span class="status-percentage">{{getStatusPercentage('completed')}}%</span>
               </div>
             </div>
-            <div class="status-item">
-              <mat-icon style="color: #999">cancel</mat-icon>
-              <div>
-                <h3>{{reportData.bookingsByStatus.cancelled}}</h3>
-                <p>Cancelled</p>
+
+            <div class="status-row">
+              <div class="status-label">
+                <mat-icon style="color: #999">cancel</mat-icon>
+                <span>Cancelled</span>
+              </div>
+              <div class="status-bar-container">
+                <div class="status-count">{{reportData.bookingsByStatus.cancelled}}</div>
+                <mat-progress-bar 
+                  mode="determinate" 
+                  [value]="getStatusPercentage('cancelled')">
+                </mat-progress-bar>
+                <span class="status-percentage">{{getStatusPercentage('cancelled')}}%</span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Monthly Trends Chart -->
+      <mat-card class="report-card">
+        <mat-card-header>
+          <mat-card-title>Monthly Trends (Last 6 Months)</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container">
+            <div class="chart-legend">
+              <div class="legend-item">
+                <span class="legend-color bookings-color"></span>
+                <span>Bookings</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color revenue-color"></span>
+                <span>Revenue (₹)</span>
+              </div>
+            </div>
+            
+            <div class="bar-chart">
+              <div class="chart-bars">
+                <div class="bar-group" *ngFor="let data of monthlyData">
+                  <div class="bar-container">
+                    <div class="bar bookings-bar" 
+                         [style.height.%]="data.bookings * 8"
+                         [title]="data.bookings + ' bookings'">
+                      <span class="bar-label" *ngIf="data.bookings > 0">{{ data.bookings }}</span>
+                    </div>
+                    <div class="bar revenue-bar" 
+                         [style.height.%]="(data.revenue / 1000)"
+                         [title]="formatCurrency(data.revenue)">
+                      <span class="bar-label" *ngIf="data.revenue > 0">{{ (data.revenue / 1000).toFixed(1) }}k</span>
+                    </div>
+                  </div>
+                  <span class="month-label">{{ data.month }}</span>
+                </div>
               </div>
             </div>
           </div>

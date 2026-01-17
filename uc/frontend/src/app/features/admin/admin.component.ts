@@ -31,7 +31,8 @@ export class AdminComponent implements OnInit {
   };
 
   recentActivities: any[] = [];
-  chartData: number[] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; // Initialize with 12 zeros for 12 days
+  chartData: number[] = [];
+  chartLabels: string[] = [];
 
   loading = true;
 
@@ -65,6 +66,7 @@ export class AdminComponent implements OnInit {
   generateChartData(bookings: any[]): void {
     // Generate revenue chart for last 12 days
     const chartData: number[] = [];
+    const chartLabels: string[] = [];
     const today = new Date();
     
     console.log('=== Generating Chart Data ===');
@@ -85,12 +87,18 @@ export class AdminComponent implements OnInit {
       
       const dayRevenue = dayBookings.reduce((sum: number, b: any) => sum + (b.totalAmount || 0), 0);
       
-      console.log(`Day ${12 - i}: ${date.toDateString()} - Bookings: ${dayBookings.length}, Revenue: ₹${dayRevenue}`);
+      // Format date as "Day DD" (e.g., "Day 1", "Day 16")
+      const dayLabel = `Day ${date.getDate()}`;
+      
+      console.log(`${dayLabel}: ${date.toDateString()} - Bookings: ${dayBookings.length}, Revenue: ₹${dayRevenue}`);
       chartData.push(dayRevenue);
+      chartLabels.push(dayLabel);
     }
     
     this.chartData = chartData;
+    this.chartLabels = chartLabels;
     console.log('Chart Data Array:', this.chartData);
+    console.log('Chart Labels:', this.chartLabels);
     console.log('Chart data length:', this.chartData.length);
     console.log('Max value:', Math.max(...this.chartData));
     console.log('=== Chart Data Generation Complete ===');
@@ -105,17 +113,20 @@ export class AdminComponent implements OnInit {
   }
 
   getChartHeight(value: number): string {
-    if (this.chartData.length === 0) return '0%';
-    const maxValue = Math.max(...this.chartData, 1); // Ensure at least 1 to avoid division by zero
+    if (this.chartData.length === 0) return '5%';
     
-    // If all values are 0, show small bars
-    if (maxValue === 0 || maxValue === 1) {
-      return value === 0 ? '5%' : '10%';
+    const maxValue = Math.max(...this.chartData);
+    
+    // If all values are 0 or there's no data, show placeholder bars
+    if (maxValue === 0) {
+      return '8%'; // Small placeholder height
     }
     
+    // Calculate percentage with minimum 10% height for visibility
     const percentage = (value / maxValue) * 100;
-    // Ensure minimum height of 5% for visibility, even if value is 0
-    return `${Math.max(percentage, 5)}%`;
+    const finalHeight = Math.max(percentage, value > 0 ? 10 : 5);
+    
+    return `${finalHeight}%`;
   }
 
   loadStats(): void {

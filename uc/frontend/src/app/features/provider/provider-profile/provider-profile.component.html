@@ -1,0 +1,208 @@
+<div class="provider-profile-container">
+  <div class="page-header">
+    <h1><mat-icon>person</mat-icon> Provider Profile</h1>
+    <p>Manage your professional information and profile details</p>
+  </div>
+
+  <ng-container *ngIf="loading">
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!loading">
+    <div class="profile-content">
+      <!-- Profile Image Section -->
+      <mat-card class="profile-image-card">
+        <mat-card-header>
+          <mat-card-title>Profile Picture</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="image-section">
+            <div class="current-image">
+              <img *ngIf="profileImageUrl; else defaultAvatar" 
+                   [src]="profileImageUrl" 
+                   alt="Profile" 
+                   class="profile-avatar">
+              <ng-template #defaultAvatar>
+                <div class="default-avatar">
+                  <mat-icon>account_circle</mat-icon>
+                </div>
+              </ng-template>
+            </div>
+            <div class="image-upload">
+              <input type="file" 
+                     #fileInput 
+                     accept="image/*" 
+                     (change)="onFileSelected($event)" 
+                     style="display: none">
+              <button mat-raised-button color="primary" (click)="fileInput.click()">
+                <mat-icon>photo_camera</mat-icon>
+                Choose Photo
+              </button>
+              <button mat-raised-button 
+                      color="accent" 
+                      *ngIf="selectedFile" 
+                      (click)="uploadProfileImage()">
+                <mat-icon>cloud_upload</mat-icon>
+                Upload
+              </button>
+              <p class="hint">Recommended: Square image, at least 400x400px</p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Profile Information Form -->
+      <mat-card class="profile-form-card">
+        <mat-card-header>
+          <mat-card-title>Professional Information</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+            <div class="form-grid">
+              <!-- Bio -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Bio / About</mat-label>
+                <textarea matInput 
+                          formControlName="bio" 
+                          rows="4" 
+                          placeholder="Tell us about yourself..."></textarea>
+                <mat-hint align="end">{{ profileForm.get('bio')?.value?.length || 0 }}/500</mat-hint>
+              </mat-form-field>
+
+              <!-- Qualification -->
+              <mat-form-field appearance="outline">
+                <mat-label>Qualification</mat-label>
+                <input matInput 
+                       formControlName="qualification" 
+                       placeholder="e.g., B.Tech, MBA">
+              </mat-form-field>
+
+              <!-- Specialization -->
+              <mat-form-field appearance="outline">
+                <mat-label>Specialization</mat-label>
+                <input matInput 
+                       formControlName="specialization" 
+                       placeholder="e.g., Electrical, Plumbing">
+              </mat-form-field>
+
+              <!-- Experience -->
+              <mat-form-field appearance="outline">
+                <mat-label>Experience (Years)</mat-label>
+                <input matInput 
+                       type="number" 
+                       formControlName="experience" 
+                       placeholder="0">
+                <mat-hint>Years of professional experience</mat-hint>
+              </mat-form-field>
+
+              <!-- Phone -->
+              <mat-form-field appearance="outline">
+                <mat-label>Contact Number</mat-label>
+                <input matInput 
+                       formControlName="phone" 
+                       placeholder="10-digit number">
+                <mat-error *ngIf="profileForm.get('phone')?.hasError('pattern')">
+                  Please enter a valid 10-digit phone number
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <mat-divider class="form-divider"></mat-divider>
+
+            <!-- Address Section -->
+            <h3 class="section-title">
+              <mat-icon>location_on</mat-icon>
+              Address Information
+            </h3>
+            
+            <div formGroupName="address" class="form-grid">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Street Address</mat-label>
+                <input matInput formControlName="street" placeholder="Building, Street">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>City</mat-label>
+                <input matInput formControlName="city" placeholder="City">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>State</mat-label>
+                <input matInput formControlName="state" placeholder="State">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>PIN Code</mat-label>
+                <input matInput formControlName="pincode" placeholder="6-digit PIN">
+                <mat-error *ngIf="profileForm.get('address.pincode')?.hasError('pattern')">
+                  Please enter a valid 6-digit PIN code
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-actions">
+              <button mat-raised-button 
+                      color="primary" 
+                      type="submit" 
+                      [disabled]="profileForm.invalid || saving">
+                <mat-icon>save</mat-icon>
+                {{ saving ? 'Saving...' : 'Save Changes' }}
+              </button>
+              <button mat-button 
+                      type="button" 
+                      (click)="loadProfile()" 
+                      [disabled]="saving">
+                <mat-icon>refresh</mat-icon>
+                Reset
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Profile Summary -->
+      <mat-card class="profile-summary-card">
+        <mat-card-header>
+          <mat-card-title>Profile Summary</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="summary-grid">
+            <div class="summary-item">
+              <mat-icon>person</mat-icon>
+              <div class="summary-content">
+                <span class="label">Name</span>
+                <span class="value">{{ currentUser?.name }}</span>
+              </div>
+            </div>
+            
+            <div class="summary-item">
+              <mat-icon>email</mat-icon>
+              <div class="summary-content">
+                <span class="label">Email</span>
+                <span class="value">{{ currentUser?.email }}</span>
+              </div>
+            </div>
+            
+            <div class="summary-item" *ngIf="profile?.bio">
+              <mat-icon>info</mat-icon>
+              <div class="summary-content">
+                <span class="label">Bio</span>
+                <span class="value">{{ profile?.bio }}</span>
+              </div>
+            </div>
+            
+            <div class="summary-item" *ngIf="profile?.occupation">
+              <mat-icon>work</mat-icon>
+              <div class="summary-content">
+                <span class="label">Occupation</span>
+                <span class="value">{{ profile?.occupation }}</span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </ng-container>
+</div>

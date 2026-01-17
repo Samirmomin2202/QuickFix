@@ -12,6 +12,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -40,6 +41,7 @@ const MATERIAL_MODULES = [
   MatToolbarModule,
   MatMenuModule,
   MatProgressSpinnerModule,
+  MatProgressBarModule,
   MatSnackBarModule,
   MatSelectModule,
   MatDatepickerModule,

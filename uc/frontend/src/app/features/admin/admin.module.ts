@@ -8,6 +8,8 @@ import { ManageUsersComponent } from './manage-users/manage-users.component';
 import { ViewReportsComponent } from './view-reports/view-reports.component';
 import { ManageServicesComponent } from './manage-services/manage-services.component';
 import { ManageBookingsComponent } from './manage-bookings/manage-bookings.component';
+import { AssignProviderDialogComponent } from './manage-bookings/assign-provider-dialog/assign-provider-dialog.component';
+import { BookingDetailsDialogComponent } from './manage-bookings/booking-details-dialog/booking-details-dialog.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +19,9 @@ import { ManageBookingsComponent } from './manage-bookings/manage-bookings.compo
     ManageUsersComponent,
     ViewReportsComponent,
     ManageServicesComponent,
-    ManageBookingsComponent
+    ManageBookingsComponent,
+    AssignProviderDialogComponent,
+    BookingDetailsDialogComponent
   ],
   imports: [
     SharedModule,

@@ -1,7 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { BookingService } from '@core/services/booking.service';
+import { UserService } from '@core/services/user.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { AssignProviderDialogComponent } from './assign-provider-dialog/assign-provider-dialog.component';
+import { BookingDetailsDialogComponent } from './booking-details-dialog/booking-details-dialog.component';
 
 interface BookingData {
   _id: string;
@@ -83,7 +87,9 @@ export class ManageBookingsComponent implements OnInit {
 
   constructor(
     private bookingService: BookingService,
-    private snackBar: MatSnackBar
+    private userService: UserService,
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -272,8 +278,11 @@ export class ManageBookingsComponent implements OnInit {
   }
 
   viewBookingDetails(booking: BookingData): void {
-    // Implement view details modal or navigation
-    console.log('View booking details:', booking);
+    this.dialog.open(BookingDetailsDialogComponent, {
+      width: '800px',
+      maxWidth: '90vw',
+      data: { booking }
+    });
   }
 
   deleteBooking(booking: BookingData): void {
@@ -292,12 +301,48 @@ export class ManageBookingsComponent implements OnInit {
   }
 
   assignProvider(booking: BookingData): void {
-    // TODO: Implement provider assignment modal
-    this.showMessage('Provider assignment feature coming soon', 'success');
+    const dialogRef = this.dialog.open(AssignProviderDialogComponent, {
+      width: '600px',
+      data: { booking }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.bookingService.updateBooking(booking._id, { 
+          serviceProvider: result._id 
+        }).subscribe({
+          next: () => {
+            this.showMessage(`Provider ${result.name} assigned successfully`, 'success');
+            this.loadBookings();
+          },
+          error: (error) => {
+            console.error('Error assigning provider:', error);
+            this.showMessage('Failed to assign provider', 'error');
+          }
+        });
+      }
+    });
   }
 
   contactCustomer(booking: BookingData): void {
-    window.location.href = `mailto:${booking.user.email}?subject=Regarding Booking ${booking._id}`;
+    const subject = encodeURIComponent(`Regarding Booking #${booking._id}`);
+    const body = encodeURIComponent(
+      `Dear ${booking.user.name},\n\n` +
+      `This is regarding your booking for ${booking.service.name}.\n` +
+      `Booking ID: ${booking._id}\n` +
+      `Scheduled Date: ${new Date(booking.scheduledDate).toLocaleDateString()}\n` +
+      `Status: ${booking.status}\n\n` +
+      `Best regards,\nQuickFix Team`
+    );
+    
+    const mailtoLink = `mailto:${booking.user.email}?subject=${subject}&body=${body}`;
+    
+    // Open in new window to avoid navigation issues
+    const link = document.createElement('a');
+    link.href = mailtoLink;
+    link.click();
+    
+    this.showMessage(`Opening email client to contact ${booking.user.name}`, 'success');
   }
 
   exportBookings(): void {

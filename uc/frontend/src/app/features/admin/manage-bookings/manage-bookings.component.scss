@@ -597,7 +597,7 @@
         padding: 16px 20px;
         border-top: 1px solid #e9ecef;
         display: flex;
-        gap: 8px;
+        gap: 12px;
         flex-wrap: wrap;
         align-items: center;
 
@@ -605,12 +605,12 @@
           width: 1px;
           height: 24px;
           background: #dee2e6;
-          margin: 0 4px;
+          margin: 0 8px;
         }
 
         button {
           mat-icon {
-            margin-right: 4px;
+            margin-right: 6px;
           }
         }
       }

@@ -17,6 +17,7 @@ export interface Address {
   city?: string;
   state?: string;
   pincode?: string;
+  zipCode?: string;
   country?: string;
   landmark?: string;
 }
@@ -115,6 +116,7 @@ export interface Profile {
     city?: string;
     state?: string;
     zipCode?: string;
+    pincode?: string;
     country?: string;
     fullAddress?: string;
     coordinates?: {
@@ -124,6 +126,16 @@ export interface Profile {
   };
   bio?: string;
   occupation?: string;
+  qualification?: string;
+  specialization?: string;
+  experience?: number;
+  bankDetails?: {
+    accountHolderName: string;
+    bankName: string;
+    accountNumber: string;
+    ifscCode: string;
+    branch?: string;
+  };
   createdAt: string;
   updatedAt: string;
 }

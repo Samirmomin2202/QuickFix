@@ -62,32 +62,166 @@
   .report-card {
     margin-bottom: 24px;
 
-    .status-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 24px;
+    .status-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
 
-      .status-item {
+      .status-row {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 16px;
 
-        mat-icon {
-          font-size: 36px;
-          width: 36px;
-          height: 36px;
+        .status-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          min-width: 140px;
+
+          mat-icon {
+            font-size: 24px;
+            width: 24px;
+            height: 24px;
+          }
+
+          span {
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+          }
         }
 
-        h3 {
-          font-size: 28px;
-          margin: 0;
-          color: #333;
-        }
+        .status-bar-container {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          gap: 12px;
 
-        p {
-          margin: 0;
-          color: #666;
+          .status-count {
+            min-width: 40px;
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+          }
+
+          mat-progress-bar {
+            flex: 1;
+            height: 12px;
+            border-radius: 6px;
+          }
+
+          .status-percentage {
+            min-width: 50px;
+            font-size: 14px;
+            color: #666;
+            text-align: right;
+          }
+        }
+      }
+    }
+
+    .chart-container {
+      padding: 20px 0;
+
+      .chart-legend {
+        display: flex;
+        gap: 24px;
+        margin-bottom: 24px;
+        justify-content: center;
+
+        .legend-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
           font-size: 14px;
+          color: #666;
+
+          .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+
+            &.bookings-color {
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+
+            &.revenue-color {
+              background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            }
+          }
+        }
+      }
+
+      .bar-chart {
+        margin-top: 20px;
+
+        .chart-bars {
+          display: flex;
+          justify-content: space-around;
+          align-items: flex-end;
+          min-height: 250px;
+          border-bottom: 2px solid #e0e0e0;
+          padding: 0 10px;
+          gap: 8px;
+
+          .bar-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 100px;
+
+            .bar-container {
+              width: 100%;
+              display: flex;
+              justify-content: center;
+              align-items: flex-end;
+              gap: 4px;
+              height: 200px;
+              margin-bottom: 8px;
+
+              .bar {
+                width: 30px;
+                border-radius: 4px 4px 0 0;
+                position: relative;
+                transition: all 0.3s ease;
+                min-height: 20px;
+                display: flex;
+                align-items: flex-start;
+                justify-content: center;
+                cursor: pointer;
+
+                &:hover {
+                  opacity: 0.8;
+                  transform: translateY(-2px);
+                }
+
+                .bar-label {
+                  position: absolute;
+                  top: -20px;
+                  font-size: 11px;
+                  font-weight: 600;
+                  color: #333;
+                }
+
+                &.bookings-bar {
+                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                }
+
+                &.revenue-bar {
+                  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                }
+              }
+            }
+
+            .month-label {
+              font-size: 12px;
+              color: #666;
+              font-weight: 500;
+              text-align: center;
+              white-space: nowrap;
+            }
+          }
         }
       }
     }
