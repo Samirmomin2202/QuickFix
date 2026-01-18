@@ -45,6 +45,14 @@ export class AdminComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Initialize with 12 days of empty data
+    this.chartLabels = Array.from({ length: 12 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (11 - i));
+      return `Day ${date.getDate()}`;
+    });
+    this.chartData = new Array(12).fill(0);
+    
     this.loadStats();
   }
 
@@ -71,6 +79,7 @@ export class AdminComponent implements OnInit {
     
     console.log('=== Generating Chart Data ===');
     console.log('Total bookings received:', bookings.length);
+    console.log('Sample booking:', bookings[0]);
     
     for (let i = 11; i >= 0; i--) {
       const date = new Date(today);
@@ -81,7 +90,7 @@ export class AdminComponent implements OnInit {
       nextDate.setDate(nextDate.getDate() + 1);
       
       const dayBookings = bookings.filter((b: any) => {
-        const bookingDate = new Date(b.createdAt);
+        const bookingDate = new Date(b.scheduledDate || b.createdAt);
         return bookingDate >= date && bookingDate < nextDate && b.status !== 'cancelled';
       });
       
@@ -99,7 +108,7 @@ export class AdminComponent implements OnInit {
     this.chartLabels = chartLabels;
     console.log('Chart Data Array:', this.chartData);
     console.log('Chart Labels:', this.chartLabels);
-    console.log('Chart data length:', this.chartData.length);
+    console.log('Has data?', !this.hasNoChartData());
     console.log('Max value:', Math.max(...this.chartData));
     console.log('=== Chart Data Generation Complete ===');
   }
@@ -119,14 +128,25 @@ export class AdminComponent implements OnInit {
     
     // If all values are 0 or there's no data, show placeholder bars
     if (maxValue === 0) {
-      return '8%'; // Small placeholder height
+      return '10%'; // Placeholder height when no data
     }
     
-    // Calculate percentage with minimum 10% height for visibility
+    // Calculate percentage with minimum 15% height for visibility
     const percentage = (value / maxValue) * 100;
-    const finalHeight = Math.max(percentage, value > 0 ? 10 : 5);
+    const finalHeight = Math.max(percentage, value > 0 ? 15 : 8);
     
     return `${finalHeight}%`;
+  }
+
+  hasNoChartData(): boolean {
+    if (this.chartData.length === 0) return true;
+    const hasData = this.chartData.some(d => d > 0);
+    console.log('hasNoChartData check:', { 
+      length: this.chartData.length, 
+      hasData, 
+      data: this.chartData 
+    });
+    return !hasData;
   }
 
   loadStats(): void {

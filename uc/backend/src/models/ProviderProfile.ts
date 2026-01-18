@@ -114,8 +114,7 @@ const ProviderProfileSchema = new Schema<IProviderProfile>({
   toObject: { virtuals: true }
 });
 
-// Indexes for optimization
-ProviderProfileSchema.index({ user: 1 });
+// Indexes for optimization (user index already created by unique: true)
 ProviderProfileSchema.index({ email: 1 });
 ProviderProfileSchema.index({ services: 1 });
 ProviderProfileSchema.index({ verificationStatus: 1 });

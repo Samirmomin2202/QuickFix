@@ -1,0 +1,213 @@
+<div class="booking-detail-dialog">
+  <h2 mat-dialog-title>
+    <mat-icon>event_note</mat-icon>
+    Booking Details
+  </h2>
+
+  <mat-dialog-content>
+    <!-- Booking ID & Status -->
+    <div class="section">
+      <div class="section-header">
+        <mat-icon>confirmation_number</mat-icon>
+        <h3>Booking Information</h3>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">Booking ID</span>
+          <span class="value">
+            {{booking._id}}
+            <button mat-icon-button (click)="copyToClipboard(booking._id)" matTooltip="Copy">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Status</span>
+          <span class="value">
+            <mat-chip [style.background-color]="getStatusColor(booking.status)" class="status-chip">
+              {{booking.status | titlecase}}
+            </mat-chip>
+          </span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Payment Status</span>
+          <span class="value">
+            <mat-chip [style.background-color]="getPaymentStatusColor(booking.paymentStatus || 'pending')" class="status-chip">
+              {{(booking.paymentStatus || 'pending') | titlecase}}
+            </mat-chip>
+          </span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Booked On</span>
+          <span class="value">{{booking.createdAt | date:'medium'}}</span>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Service Details -->
+    <div class="section">
+      <div class="section-header">
+        <mat-icon>build</mat-icon>
+        <h3>Service Details</h3>
+      </div>
+      <div class="service-card">
+        <div class="service-image" *ngIf="booking.service?.image">
+          <img [src]="booking.service.image" [alt]="booking.service?.name">
+        </div>
+        <div class="service-info">
+          <h4>{{booking.service?.name}}</h4>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="label">Price</span>
+              <span class="value">₹{{booking.service?.price?.toLocaleString()}}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Total Amount</span>
+              <span class="value total-amount">₹{{booking.totalAmount?.toLocaleString()}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Schedule -->
+    <div class="section">
+      <div class="section-header">
+        <mat-icon>schedule</mat-icon>
+        <h3>Schedule</h3>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">Date</span>
+          <span class="value">{{booking.scheduledDate | date:'fullDate'}}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Time</span>
+          <span class="value">{{booking.scheduledTime}}</span>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Address -->
+    <div class="section">
+      <div class="section-header">
+        <mat-icon>location_on</mat-icon>
+        <h3>Service Address</h3>
+      </div>
+      <div class="address-info">
+        <p *ngIf="booking.address?.street">{{booking.address.street}}</p>
+        <p *ngIf="booking.address?.city || booking.address?.state">
+          {{booking.address.city}}<span *ngIf="booking.address.city && booking.address.state">, </span>{{booking.address.state}}
+          <span *ngIf="booking.address.pincode"> - {{booking.address.pincode}}</span>
+        </p>
+        <p *ngIf="booking.address?.landmark" class="landmark">
+          <mat-icon>place</mat-icon>
+          Landmark: {{booking.address.landmark}}
+        </p>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Service Provider -->
+    <div class="section">
+      <div class="section-header">
+        <mat-icon>engineering</mat-icon>
+        <h3>Service Provider</h3>
+      </div>
+      <div *ngIf="booking.serviceProvider" class="provider-card">
+        <div class="provider-info">
+          <div class="provider-avatar">
+            <mat-icon>person</mat-icon>
+          </div>
+          <div class="provider-details">
+            <h4>{{booking.serviceProvider.name}}</h4>
+            <p class="provider-email" *ngIf="booking.serviceProvider.email">
+              <mat-icon>email</mat-icon>
+              {{booking.serviceProvider.email}}
+            </p>
+            <p class="provider-phone" *ngIf="booking.serviceProvider.phone">
+              <mat-icon>phone</mat-icon>
+              {{booking.serviceProvider.phone}}
+            </p>
+          </div>
+        </div>
+        <div class="provider-actions">
+          <button mat-raised-button color="primary" (click)="contactProvider()">
+            <mat-icon>email</mat-icon>
+            Send Email
+          </button>
+          <button mat-raised-button color="accent" (click)="callProvider()" *ngIf="booking.serviceProvider.phone">
+            <mat-icon>phone</mat-icon>
+            Call
+          </button>
+        </div>
+      </div>
+      <div *ngIf="!booking.serviceProvider" class="no-data">
+        <mat-icon>person_off</mat-icon>
+        <p>No provider assigned yet</p>
+      </div>
+    </div>
+
+    <!-- Client Details (if booking is for someone else) -->
+    <div class="section" *ngIf="booking.bookingFor === 'someone-else' && booking.clientDetails">
+      <mat-divider></mat-divider>
+      <div class="section-header">
+        <mat-icon>contacts</mat-icon>
+        <h3>Client Details</h3>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">Name</span>
+          <span class="value">{{booking.clientDetails.name}}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Email</span>
+          <span class="value">{{booking.clientDetails.email}}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Phone</span>
+          <span class="value">{{booking.clientDetails.phone}}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes/Description -->
+    <div class="section" *ngIf="booking.notes || booking.description">
+      <mat-divider></mat-divider>
+      <div class="section-header">
+        <mat-icon>notes</mat-icon>
+        <h3>Additional Notes</h3>
+      </div>
+      <div class="notes-content">
+        <p>{{booking.notes || booking.description}}</p>
+      </div>
+    </div>
+
+    <!-- Cancellation Info -->
+    <div class="section" *ngIf="booking.status === 'cancelled' && booking.cancellationReason">
+      <mat-divider></mat-divider>
+      <div class="section-header">
+        <mat-icon>cancel</mat-icon>
+        <h3>Cancellation Information</h3>
+      </div>
+      <div class="cancellation-info">
+        <p><strong>Reason:</strong> {{booking.cancellationReason}}</p>
+        <p *ngIf="booking.cancelledAt"><strong>Cancelled On:</strong> {{booking.cancelledAt | date:'medium'}}</p>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onClose()">
+      <mat-icon>close</mat-icon>
+      Close
+    </button>
+  </mat-dialog-actions>
+</div>

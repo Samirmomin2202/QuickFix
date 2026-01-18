@@ -89,8 +89,7 @@ const ProfileSchema = new Schema<IProfile>({
   timestamps: true
 });
 
-// Index for faster queries
-ProfileSchema.index({ user: 1 });
+// Index for faster queries (user index already created by unique: true)
 ProfileSchema.index({ email: 1 });
 
 const Profile: Model<IProfile> = mongoose.model<IProfile>('Profile', ProfileSchema);

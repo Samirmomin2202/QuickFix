@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { BookingService } from '@core/services/booking.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
+import { BookingDetailDialogComponent } from '../booking-detail-dialog/booking-detail-dialog.component';
 
 @Component({
   standalone: false,
@@ -54,7 +56,8 @@ export class BookingListComponent implements OnInit {
 
   constructor(
     private bookingService: BookingService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -176,6 +179,34 @@ export class BookingListComponent implements OnInit {
       'cancelled': '#6b7280'
     };
     return colors[status] || '#6b7280';
+  }
+
+  viewDetails(booking: any): void {
+    this.dialog.open(BookingDetailDialogComponent, {
+      width: '800px',
+      maxWidth: '95vw',
+      data: { booking }
+    });
+  }
+
+  contactProvider(booking: any): void {
+    if (!booking.serviceProvider) {
+      this.showMessage('No provider assigned to this booking yet', 'error');
+      return;
+    }
+
+    const provider = booking.serviceProvider;
+    const subject = encodeURIComponent(`Regarding Booking #${booking._id}`);
+    const body = encodeURIComponent(
+      `Hello ${provider.name},\n\n` +
+      `I would like to discuss my booking:\n` +
+      `Service: ${booking.service?.name}\n` +
+      `Scheduled Date: ${new Date(booking.scheduledDate).toLocaleDateString()}\n` +
+      `Time: ${booking.scheduledTime}\n\n` +
+      `Best regards`
+    );
+    
+    window.location.href = `mailto:${provider.email}?subject=${subject}&body=${body}`;
   }
 
   cancelBooking(booking: any): void {
