@@ -5,6 +5,7 @@ import Service from '../models/Service';
 import Profile from '../models/Profile';
 import ErrorResponse from '../utils/errorResponse';
 import { AuthRequest } from '../types';
+import { createNotification } from './notificationController';
 
 // @desc    Get all bookings for logged in user
 // @route   GET /api/bookings
@@ -121,10 +122,30 @@ export const updateBooking = asyncHandler(async (req: AuthRequest, res: Response
     return next(new ErrorResponse('Not authorized to update this booking', 403));
   }
 
+  // Check if provider is being assigned by admin
+  const oldProviderId = booking.serviceProvider?.toString();
+  const newProviderId = req.body.serviceProvider?.toString();
+  const isAssigningProvider = isAdmin && newProviderId && oldProviderId !== newProviderId;
+
   booking = await Booking.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true
-  });
+  }).populate('service', 'name');
+
+  // Create notification for provider when assigned
+  if (isAssigningProvider && booking) {
+    const serviceName = typeof booking.service === 'object' ? booking.service.name : 'a service';
+    const serviceId = typeof booking.service === 'object' ? booking.service._id : booking.service;
+    
+    await createNotification({
+      recipient: newProviderId,
+      type: 'booking_assigned',
+      title: 'New Booking Assigned',
+      message: `You have been assigned to a new booking (ID: ${booking._id}) for ${serviceName}. Please review the details and update the status accordingly.`,
+      relatedBooking: booking._id.toString(),
+      relatedService: serviceId?.toString()
+    });
+  }
 
   res.status(200).json({
     success: true,

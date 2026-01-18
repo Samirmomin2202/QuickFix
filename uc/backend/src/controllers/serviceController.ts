@@ -1,20 +1,45 @@
 import { Request, Response, NextFunction } from 'express';
 import asyncHandler from 'express-async-handler';
 import Service from '../models/Service';
+import Category from '../models/Category';
 import ErrorResponse from '../utils/errorResponse';
 import { AuthRequest } from '../types';
 
 // @desc    Get all services
 // @route   GET /api/services
 // @access  Public
-export const getServices = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+export const getServices = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const { category, featured, minPrice, maxPrice, search, sort } = req.query;
 
   let query: any = { isActive: true };
 
-  // Filter by category
+  // Filter by category (handle both category name and ObjectId)
   if (category) {
-    query.category = category;
+    // Check if it's a valid ObjectId or a category name/slug
+    if (category.toString().match(/^[0-9a-fA-F]{24}$/)) {
+      // It's a valid ObjectId
+      query.category = category;
+    } else {
+      // It's a category name or slug, look up the category ID
+      const categoryDoc = await Category.findOne({
+        $or: [
+          { name: { $regex: new RegExp(`^${category}$`, 'i') } },
+          { slug: category }
+        ]
+      });
+      
+      if (categoryDoc) {
+        query.category = categoryDoc._id;
+      } else {
+        // If category not found, return empty results instead of error
+        res.status(200).json({
+          success: true,
+          count: 0,
+          data: []
+        });
+        return;
+      }
+    }
   }
 
   // Filter by featured
