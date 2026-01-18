@@ -2,5 +2,5 @@ export const environment = {
   production: true,
   apiUrl: '/api',
   uploadsUrl: '/uploads',
-  googleMapsApiKey: 'YOUR_GOOGLE_MAPS_API_KEY_HERE'
+  googleMapsApiKey: 'AIzaSyBvReNCWkv6ya_9D2AhN0PZl-2LJ8hpxFg'
 };

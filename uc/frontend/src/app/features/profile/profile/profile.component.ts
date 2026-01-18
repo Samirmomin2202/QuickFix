@@ -12,6 +12,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ProfileService } from '../../../core/services/profile.service';
 import { Profile } from '../../../core/models';
 import { environment } from '../../../../environments/environment';
@@ -50,6 +51,7 @@ export class ProfileComponent implements OnInit {
   imagePreview: string | null = null;
   uploadsUrl = environment.uploadsUrl;
   googleMapsLoaded = false;
+  returnUrl: string | null = null;
   
   autocomplete: any = null;
   map: any = null;
@@ -69,13 +71,26 @@ export class ProfileComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private profileService: ProfileService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
     this.loadProfile();
     this.loadGoogleMaps();
+    
+    // Check if there's a return URL in query params
+    this.route.queryParams.subscribe(params => {
+      this.returnUrl = params['returnUrl'] || null;
+      
+      if (this.returnUrl) {
+        this.snackBar.open('Please complete your profile address to continue with booking', 'Close', {
+          duration: 5000
+        });
+      }
+    });
   }
 
   initializeForm(): void {
@@ -475,6 +490,13 @@ export class ProfileComponent implements OnInit {
           duration: 3000
         });
         this.loading = false;
+        
+        // If there's a return URL, redirect back to it
+        if (this.returnUrl) {
+          setTimeout(() => {
+            this.router.navigateByUrl(this.returnUrl!);
+          }, 1000);
+        }
       },
       error: (error) => {
         this.snackBar.open(error.error?.message || 'Failed to update profile', 'Close', {

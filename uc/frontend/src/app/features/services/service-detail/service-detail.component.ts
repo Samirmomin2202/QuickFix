@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
@@ -8,6 +8,9 @@ import { BookingService } from '@core/services/booking.service';
 import { AuthService } from '@core/services/auth.service';
 import { Profile, Service } from '@core/models';
 import { ProfileService } from '@core/services/profile.service';
+import { environment } from '@environments/environment';
+
+declare const google: any;
 
 @Component({
   standalone: false,
@@ -16,6 +19,8 @@ import { ProfileService } from '@core/services/profile.service';
   styleUrls: ['./service-detail.component.scss']
 })
 export class ServiceDetailComponent implements OnInit {
+  @ViewChild('addressInput') addressInput!: ElementRef<HTMLInputElement>;
+  
   service: Service | null = null;
   bookingForm: FormGroup;
   loading = true;
@@ -26,6 +31,14 @@ export class ServiceDetailComponent implements OnInit {
   selectedTimeSlots: string[] = [];
   timeSlots: { start: string; end: string; display: string; value: string }[] = [];
   profileDetails: Profile | null = null;
+  
+  // Google Maps properties
+  googleMapsLoaded = false;
+  autocomplete: any = null;
+  map: any = null;
+  marker: any = null;
+  showMap = false;
+  private googleMapsLoading?: Promise<void>;
 
   // Autocomplete data (state -> cities -> pincodes)
   indiaLocations: {
@@ -358,12 +371,15 @@ export class ServiceDetailComponent implements OnInit {
     if (id) {
       this.loadService(id);
     }
-    // Setup autocomplete filtering
-    this.setupAutocomplete();
+    // Setup autocomplete filtering - COMMENTED OUT - Using Map-based address selection only
+    // this.setupAutocomplete();
 
     if (this.isLoggedIn) {
       this.loadProfile();
     }
+    
+    // Load Google Maps
+    this.loadGoogleMaps();
   }
 
   loadService(id: string): void {
@@ -448,6 +464,7 @@ export class ServiceDetailComponent implements OnInit {
     return new Date(); // Today
   }
 
+  /* COMMENTED OUT - Using Map-based address selection only
   setupAutocomplete(): void {
     const addressGroup = this.bookingForm.get('address')!;
     const stateControl = addressGroup.get('state')!;
@@ -483,13 +500,27 @@ export class ServiceDetailComponent implements OnInit {
       map(value => this._filterPincodes(value || ''))
     );
   }
+  */
 
   private setupBookingForListener(): void {
     const bookingForControl = this.bookingForm.get('bookingFor');
+    const addressGroup = this.bookingForm.get('address') as FormGroup;
+    
     bookingForControl?.valueChanges.subscribe((value: 'self' | 'someone-else') => {
       if (value === 'self') {
+        // Populate client details from profile
         this.populateClientDetailsFromProfile();
+        
+        // Populate address from profile
+        this.populateAddressFromProfile();
+        
+        // Disable address fields for self booking (they'll be fetched from profile)
+        addressGroup.disable();
+        
+        // Hide map for self booking
+        this.showMap = false;
       } else {
+        // For someone else - enable address fields and clear client details
         const clientDetailsGroup = this.bookingForm.get('clientDetails') as FormGroup;
         clientDetailsGroup.reset({
           name: '',
@@ -498,11 +529,32 @@ export class ServiceDetailComponent implements OnInit {
         });
         clientDetailsGroup.markAsPristine();
         clientDetailsGroup.markAsUntouched();
+        
+        // Enable address fields
+        addressGroup.enable();
+        
+        // Clear address
+        addressGroup.reset({
+          street: '',
+          city: '',
+          state: '',
+          pincode: '',
+          landmark: ''
+        });
+        
+        // Reinitialize Google Maps autocomplete for someone else
+        setTimeout(() => {
+          if (this.googleMapsLoaded && this.addressInput) {
+            this.initializeGoogleMaps();
+          }
+        }, 100);
       }
     });
 
     if (bookingForControl?.value === 'self') {
       this.populateClientDetailsFromProfile();
+      this.populateAddressFromProfile();
+      addressGroup.disable();
     }
   }
 
@@ -513,11 +565,26 @@ export class ServiceDetailComponent implements OnInit {
           this.profileDetails = response.data;
           if (this.isSelfBooking) {
             this.populateClientDetailsFromProfile();
+            this.populateAddressFromProfile();
           }
         }
       },
       error: () => {}
     });
+  }
+
+  private populateAddressFromProfile(): void {
+    const addressGroup = this.bookingForm.get('address') as FormGroup;
+    
+    if (this.profileDetails?.address) {
+      addressGroup.patchValue({
+        street: this.profileDetails.address.street || '',
+        city: this.profileDetails.address.city || '',
+        state: this.profileDetails.address.state || '',
+        pincode: this.profileDetails.address.zipCode || '',
+        landmark: ''
+      });
+    }
   }
 
   private populateClientDetailsFromProfile(): void {
@@ -545,6 +612,7 @@ export class ServiceDetailComponent implements OnInit {
     return this.bookingForm.get('bookingFor')?.value === 'self';
   }
 
+  /* COMMENTED OUT - Using Map-based address selection only
   private _filterStates(value: string): string[] {
     const filterValue = value.toLowerCase();
     return this.states
@@ -596,12 +664,31 @@ export class ServiceDetailComponent implements OnInit {
       .filter(pincode => pincode.toLowerCase().includes(filterValue))
       .slice(0, 10);
   }
+  */
 
   bookService(): void {
     if (!this.isLoggedIn) {
       alert('Please login to book a service');
       this.router.navigate(['/auth/login']);
       return;
+    }
+
+    // Check if booking for self and profile address is missing
+    if (this.isSelfBooking) {
+      const hasAddress = this.profileDetails?.address?.street && 
+                        this.profileDetails?.address?.city && 
+                        this.profileDetails?.address?.state && 
+                        this.profileDetails?.address?.zipCode;
+      
+      if (!hasAddress) {
+        if (confirm('Your profile address is incomplete. You need to complete your profile before booking for yourself. Would you like to go to your profile page now?')) {
+          // Navigate to profile with return URL
+          this.router.navigate(['/profile'], { 
+            queryParams: { returnUrl: this.router.url } 
+          });
+        }
+        return;
+      }
     }
 
     if (!this.selectedDate || this.selectedTimeSlots.length === 0) {
@@ -611,10 +698,23 @@ export class ServiceDetailComponent implements OnInit {
 
     if (this.bookingForm.valid && this.service) {
       this.submitting = true;
+      
+      // Re-enable address group temporarily to get values if it was disabled
+      const addressGroup = this.bookingForm.get('address') as FormGroup;
+      const wasDisabled = addressGroup.disabled;
+      if (wasDisabled) {
+        addressGroup.enable();
+      }
+      
       const bookingData = {
         service: this.service._id,
         ...this.bookingForm.value
       };
+      
+      // Disable again if it was disabled
+      if (wasDisabled) {
+        addressGroup.disable();
+      }
 
       this.bookingService.createBooking(bookingData).subscribe({
         next: () => {
@@ -626,6 +726,8 @@ export class ServiceDetailComponent implements OnInit {
           this.submitting = false;
         }
       });
+    } else {
+      alert('Please fill all required fields correctly');
     }
   }
 
@@ -634,5 +736,234 @@ export class ServiceDetailComponent implements OnInit {
       return Math.round(((this.service.price - this.service.discountPrice) / this.service.price) * 100);
     }
     return 0;
+  }
+
+  // Google Maps Functions
+  loadGoogleMaps(): void {
+    // Already loaded
+    if (typeof google !== 'undefined' && google.maps) {
+      this.googleMapsLoaded = true;
+      return;
+    }
+
+    // Already loading
+    if (this.googleMapsLoading) return;
+
+    if (!environment.googleMapsApiKey) {
+      console.info('Google Maps API key not configured');
+      return;
+    }
+
+    this.googleMapsLoading = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${environment.googleMapsApiKey}&libraries=places&loading=async`;
+      script.async = true;
+      script.defer = true;
+
+      script.onload = () => {
+        this.googleMapsLoaded = true;
+        resolve();
+        if (this.addressInput) {
+          setTimeout(() => this.initializeGoogleMaps(), 300);
+        }
+      };
+
+      script.onerror = () => {
+        this.googleMapsLoaded = false;
+        reject();
+      };
+
+      document.head.appendChild(script);
+    });
+  }
+
+  initializeGoogleMaps(): void {
+    if (!this.addressInput || !this.googleMapsLoaded || this.isSelfBooking) return;
+
+    try {
+      // Initialize Autocomplete
+      this.autocomplete = new google.maps.places.Autocomplete(
+        this.addressInput.nativeElement,
+        {
+          types: ['address'],
+          fields: ['address_components', 'geometry', 'formatted_address']
+        }
+      );
+
+      this.autocomplete.addListener('place_changed', () => {
+        const place = this.autocomplete!.getPlace();
+        if (place.geometry && place.geometry.location) {
+          this.updateAddressFromPlace(place);
+        }
+      });
+    } catch (error) {
+      console.error('Google Maps initialization error:', error);
+    }
+  }
+
+  updateAddressFromPlace(place: any): void {
+    const addressComponents = place.address_components || [];
+    let street = '';
+    let city = '';
+    let state = '';
+    let pincode = '';
+    let sublocality = '';
+    let administrative_area_2 = '';
+
+    console.log('Place received:', place);
+    console.log('Address components:', addressComponents);
+
+    addressComponents.forEach((component: any) => {
+      const types = component.types;
+      
+      // Street number and route
+      if (types.includes('street_number')) {
+        street = component.long_name + ' ';
+      }
+      if (types.includes('route')) {
+        street += component.long_name;
+      }
+      
+      // City - try multiple location types with priority
+      if (types.includes('locality')) {
+        city = component.long_name;
+      }
+      if (types.includes('administrative_area_level_2')) {
+        administrative_area_2 = component.long_name;
+      }
+      if (types.includes('sublocality_level_1')) {
+        sublocality = component.long_name;
+      }
+      if (types.includes('sublocality')) {
+        if (!sublocality) sublocality = component.long_name;
+      }
+      
+      // State
+      if (types.includes('administrative_area_level_1')) {
+        state = component.long_name;
+      }
+      
+      // Pincode/Postal code
+      if (types.includes('postal_code')) {
+        pincode = component.long_name;
+      }
+    });
+
+    // Determine best city value with fallbacks
+    if (!city) {
+      city = administrative_area_2 || sublocality || '';
+    }
+
+    // If street is empty, use formatted address first part
+    if (!street.trim() && place.formatted_address) {
+      const addressParts = place.formatted_address.split(',');
+      street = addressParts[0]?.trim() || '';
+    }
+
+    const extractedAddress = {
+      street: street.trim(),
+      city: city.trim(),
+      state: state.trim(),
+      pincode: pincode.trim(),
+      landmark: this.bookingForm.get('address.landmark')?.value || ''
+    };
+
+    console.log('Extracted address:', extractedAddress);
+
+    // Update the form with all extracted address components
+    const addressGroup = this.bookingForm.get('address') as FormGroup;
+    if (addressGroup) {
+      addressGroup.patchValue(extractedAddress, { emitEvent: true });
+      
+      // Mark fields as touched to show they have been filled
+      Object.keys(addressGroup.controls).forEach(key => {
+        addressGroup.get(key)?.markAsTouched();
+      });
+    }
+
+    // Update map if visible
+    if (this.showMap && place.geometry?.location) {
+      this.updateMapLocation(place.geometry.location);
+    }
+  }
+
+  toggleMap(): void {
+    if (!this.googleMapsLoaded) {
+      alert('Google Maps is not available. Map features require API key configuration.');
+      return;
+    }
+    
+    if (this.isSelfBooking) {
+      alert('Map is only available when booking for someone else. Your address is fetched from your profile.');
+      return;
+    }
+    
+    this.showMap = !this.showMap;
+    
+    if (this.showMap && !this.map) {
+      setTimeout(() => this.initializeMap(), 100);
+    }
+  }
+
+  initializeMap(): void {
+    if (!this.googleMapsLoaded) return;
+    
+    const mapElement = document.getElementById('booking-map');
+    if (!mapElement) return;
+
+    // Default location
+    let lat = 28.6139; // New Delhi default
+    let lng = 77.2090;
+
+    const location = { lat, lng };
+
+    this.map = new google.maps.Map(mapElement, {
+      center: location,
+      zoom: 15,
+      mapTypeControl: false,
+      streetViewControl: false
+    });
+
+    this.marker = new google.maps.Marker({
+      map: this.map,
+      position: location,
+      draggable: true
+    });
+
+    // Update address when marker is dragged
+    this.marker.addListener('dragend', () => {
+      if (this.marker) {
+        const position = this.marker.getPosition();
+        if (position) {
+          this.reverseGeocode(position.lat(), position.lng());
+        }
+      }
+    });
+
+    // Allow clicking on map to set location
+    this.map.addListener('click', (event: any) => {
+      if (event.latLng) {
+        this.updateMapLocation(event.latLng);
+        this.reverseGeocode(event.latLng.lat(), event.latLng.lng());
+      }
+    });
+  }
+
+  updateMapLocation(location: any): void {
+    if (this.map && this.marker) {
+      this.map.setCenter(location);
+      this.marker.setPosition(location);
+    }
+  }
+
+  reverseGeocode(lat: number, lng: number): void {
+    if (!this.googleMapsLoaded) return;
+    
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({ location: { lat, lng } }, (results: any, status: string) => {
+      if (status === 'OK' && results && results[0]) {
+        this.updateAddressFromPlace(results[0]);
+      }
+    });
   }
 }

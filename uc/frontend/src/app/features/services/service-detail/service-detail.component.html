@@ -123,41 +123,55 @@
               </div>
 
               <h4>Address</h4>
+              
+              <!-- Map toggle button - only for 'someone else' booking -->
+              <div class="map-toggle-section" *ngIf="!isSelfBooking">
+                <button mat-button type="button" color="accent" (click)="toggleMap()" class="toggle-map-btn">
+                  <mat-icon>{{showMap ? 'map' : 'add_location'}}</mat-icon>
+                  {{showMap ? 'Hide Map' : 'Pick Location from Map'}}
+                </button>
+                <p class="map-hint" *ngIf="!showMap">Click to select address using map</p>
+              </div>
+
+              <!-- Map container -->
+              <div class="map-container" *ngIf="showMap && !isSelfBooking">
+                <div id="booking-map" class="google-map"></div>
+                <p class="map-instruction">
+                  <mat-icon>info</mat-icon>
+                  Click on the map or drag the marker to select location
+                </p>
+              </div>
+
+              <!-- Profile address notice for self booking -->
+              <div class="profile-address-notice" *ngIf="isSelfBooking">
+                <mat-icon>info</mat-icon>
+                <p>Address is automatically fetched from your profile. To change it, please update your profile.</p>
+                <button mat-button color="primary" type="button" routerLink="/profile">
+                  <mat-icon>edit</mat-icon>
+                  Edit Profile
+                </button>
+              </div>
+
               <div formGroupName="address">
                 <mat-form-field appearance="outline">
                   <mat-label>Street Address</mat-label>
-                  <input matInput formControlName="street">
+                  <input matInput formControlName="street" #addressInput>
                 </mat-form-field>
 
                 <div class="address-row">
                   <mat-form-field appearance="outline">
                     <mat-label>City</mat-label>
-                    <input matInput formControlName="city" [matAutocomplete]="autoCity">
-                    <mat-autocomplete #autoCity="matAutocomplete">
-                      <mat-option *ngFor="let city of filteredCities | async" [value]="city">
-                        {{ city }}
-                      </mat-option>
-                    </mat-autocomplete>
+                    <input matInput formControlName="city">
                   </mat-form-field>
 
                   <mat-form-field appearance="outline">
                     <mat-label>State</mat-label>
-                    <input matInput formControlName="state" [matAutocomplete]="autoState">
-                    <mat-autocomplete #autoState="matAutocomplete">
-                      <mat-option *ngFor="let state of filteredStates | async" [value]="state">
-                        {{ state }}
-                      </mat-option>
-                    </mat-autocomplete>
+                    <input matInput formControlName="state">
                   </mat-form-field>
 
                   <mat-form-field appearance="outline">
                     <mat-label>Pincode</mat-label>
-                    <input matInput formControlName="pincode" maxlength="6" [matAutocomplete]="autoPincode">
-                    <mat-autocomplete #autoPincode="matAutocomplete">
-                      <mat-option *ngFor="let pincode of filteredPincodes | async" [value]="pincode">
-                        {{ pincode }}
-                      </mat-option>
-                    </mat-autocomplete>
+                    <input matInput formControlName="pincode" maxlength="6">
                   </mat-form-field>
                 </div>
 
